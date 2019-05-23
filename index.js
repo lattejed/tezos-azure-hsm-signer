@@ -79,7 +79,7 @@ function authorize() {
 }
 
 function loadKeysFromAzure(client) {
-	return client.getKeys(vaultUri).then((keys) => {
+	return client.getKeys(KEYVAULT_URI).then((keys) => {
 		let ps = keys.map(function(key) {
 			let name = unpackAzureKey(key).name
 			return client.getKeyVersions(KEYVAULT_URI, name)
@@ -94,9 +94,7 @@ function loadKeysFromAzure(client) {
 		})
 		return Promise.all(ps)
 	}).then((keys) => {
-		keys.forEach((key) => {
-			//
-		})
+		console.log(keys)
 		return Promise.resolve()
 	})
 }
