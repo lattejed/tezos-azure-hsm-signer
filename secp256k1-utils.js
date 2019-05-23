@@ -10,7 +10,7 @@ const PRE_TZ_SECP256K1_PKH = '06a1a1'
 
 /*
  * A representation of a secp256k1 public key that
- * takes a base64 encoded x and y value and produces
+ * takes buffers of x and y values and produces
  * public keys in standard and Tezos-specific formats
  */
 
@@ -18,10 +18,10 @@ function PubKeySecp256k1(x, y) {
 	if (!(this instanceof PubKeySecp256k1)) {
 		return new PubKeySecp256k1(x, y)
 	}
-	this.x = Buffer.from(x, 'base64')
-	this.y = Buffer.from(y, 'base64')
-	assert(this.x.length !== 32 || this.y.length !== 32,
+	assert(x.length !== 32 || y.length !== 32,
 		'Invalid X and Y values for PubKey')
+	this.x = x
+	this.y = y
 }
 
 /*
