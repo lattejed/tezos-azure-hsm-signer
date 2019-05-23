@@ -8,7 +8,8 @@ const KeyVault = require('azure-keyvault')
 const PubKey = require('./secp256k1-utils.py')
 const {
 	unpackAzureKey,
-	filterActiveAzureKeys
+	filterActiveAzureKeys,
+	filterAzureKeysByType
 } = require('./utils')
 
 const argv = require('yargs')
@@ -96,9 +97,10 @@ function loadKeysFromAzure(client) {
 		})
 		return Promise.all(ps)
 	}).then((keys) => {
-		let validKeys = filterAzureKeysByType(keys, VALID_KEY_CRV, VALID_KEY_KTY)
-		console.log(validKeys)
-		return Promise.resolve()
+		let allKeys = keys.map((key) => { return key.key })
+    let validKeys = filterAzureKeysByType(allKeys, VALID_KEY_CRV, VALID_KEY_KTY)
+    console.log(validKeys)
+    return Promise.resolve()
 	})
 }
 
