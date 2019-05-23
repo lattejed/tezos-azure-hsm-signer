@@ -5,7 +5,7 @@ const express = require('express')
 const http = require('http')
 const msRestAzure = require('ms-rest-azure')
 const KeyVault = require('azure-keyvault')
-const PubKey = require('./secp256k1-utils.py')
+const PubKey = require('./secp256k1-utils')
 const {
 	unpackAzureKey,
 	filterActiveAzureKeys,
