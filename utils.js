@@ -10,11 +10,10 @@ module.exports = {
     }
   },
 
-  filterActiveAzureKeys: function(keys, validCrv, validKty) {
+  filterActiveAzureKeys: function(keys) {
     return keys.map((versions) => {
       let active = versions.filter((k) => {
         return k.attributes.enabled === true
-          && k.crv === validCrv && k.kty === validKty
       })
       let newest = active.sort((a, b) => {
         return b.attributes.created - a.attributes.created
@@ -22,5 +21,5 @@ module.exports = {
       return newest
     })
   }
-
+  
 }
