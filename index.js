@@ -32,6 +32,8 @@ const MAGIC_BYTES = argv.magicBytes
 const AUTH_RESOURCE = 'https://vault.azure.net'
 const APP_NAME = 'Tezos Azure Signer'
 const SIGN_ALGO = 'ES256K'
+const VALID_KEY_CRV = 'P-256K'
+const VALID_KEY_KTY = 'EC-HSM'
 
 const app = express()
 
@@ -94,7 +96,8 @@ function loadKeysFromAzure(client) {
 		})
 		return Promise.all(ps)
 	}).then((keys) => {
-		console.log(keys)
+		let validKeys = filterAzureKeysByType(keys, VALID_KEY_CRV, VALID_KEY_KTY)
+		console.log(validKeys)
 		return Promise.resolve()
 	})
 }

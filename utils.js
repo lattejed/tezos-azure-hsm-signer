@@ -17,9 +17,17 @@ module.exports = {
       })
       let newest = active.sort((a, b) => {
         return b.attributes.created - a.attributes.created
-      })[0]
+      })[0] || {}
       return newest
+    }).filter((key) => {
+      return typeof key.kid !== 'undefined'
+    })
+  },
+
+  filterAzureKeysByType: function(keys, validCrv, validKty) {
+    return keys.filter((key) => {
+      return key.crv === validCrv && key.kty === validKty
     })
   }
-  
+
 }
