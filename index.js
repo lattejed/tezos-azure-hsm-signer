@@ -46,20 +46,30 @@ app.get('/authorized_keys', (req, res) => {
    res.json({})
 })
 
-app.get('/keys/:tz2PubKeyHash', (req, res) => {
-	// TODO: Validations, error codes
-	res.json({public_key: cachedKeys[req.params.tz2PubKeyHash]})
+app.get('/keys/:tz2PubKeyHash', (req, res, next) => {
+	let tz2 = req.params.tz2PubKeyHash
+	let sppk = (cachedKeys[tz2] || {}).sppk
+	if (sppk) {
+		res.json({public_key: sppk})
+	} else {
+		next(new Error(`No public key found for ${tz2}`))
+	}
 })
 
-app.post('/keys/:tz2PubKeyHash', (req, res) => {
+app.post('/keys/:tz2PubKeyHash', (req, res, next) => {
 	// TODO: Validations
 	let key = {}
 	let payload = Buffer.from('0000', 'hex')
 	sign(key, payload).then((signature) => {
 		res.json({signature: signature})
 	}).catch((error) => {
-		//
+		next(new Error(`No public key found for ${tz2}`))
 	})
+})
+
+app.use(function (err, req, res, next) {
+  console.error(err.message)
+  res.status(500).send(`Error: ${err.message}`)
 })
 
 function startServer() {
@@ -69,7 +79,7 @@ function startServer() {
 			reject(error)
 		})
 		server.on('listening', () => {
-			console.log(`${APP_NAME} listening at http://${ADDRESS}:${PORT}`)
+			console.info(`${APP_NAME} listening at http://${ADDRESS}:${PORT}`)
 			resolve()
 		})
 		server.listen(PORT, ADDRESS)
@@ -133,13 +143,13 @@ function initialize() {
 	  let client = new KeyVault.KeyVaultClient(credentials)
 		return loadKeysFromAzure(client)
 	}).then(() => {
-		console.log(`Loaded Public Keys:\n${JSON.stringify(cachedKeys, null, 2)}`)
+		console.info(`Loaded Public Keys:\n${JSON.stringify(cachedKeys, null, 2)}`)
 		return startServer()
 	})
 }
 
 initialize().then(() => {
-	//
+  console.info('Initalization finished')
 }).catch((error) => {
-	console.log(error)
+  console.error(error)
 })
