@@ -5,7 +5,7 @@ const express = require('express')
 const http = require('http')
 const msRestAzure = require('ms-rest-azure')
 const KeyVault = require('azure-keyvault')
-const PubKey = require('./secp256k1-utils')
+const PubKey = require('./secp256k1-utils').PubKeySecp256k1
 const {
 	unpackAzureKey,
 	filterActiveAzureKeys,
@@ -99,7 +99,17 @@ function loadKeysFromAzure(client) {
 	}).then((keys) => {
 		let allKeys = keys.map((key) => { return key.key })
     let validKeys = filterAzureKeysByType(allKeys, VALID_KEY_CRV, VALID_KEY_KTY)
-    console.log(validKeys)
+    validKeys.forEach((key) => {
+			let unpacked = unpackAzureKey(key)
+			let pubKey = new PubKey(key.x, key.y)
+			let tz2 = pubKey.publicKeyHashTz2Format()
+			cachedKeys[tz2] = {
+				name: unpacked.name,
+				version: unpacked.version,
+				tz2: tz2,
+				sppk: pubKey.publicKeySPPKFormat()
+			}
+		})
     return Promise.resolve()
 	})
 }
@@ -122,6 +132,8 @@ function initialize() {
 	  let client = new KeyVault.KeyVaultClient(credentials)
 		return loadKeysFromAzure(client)
 	}).then(() => {
+		console.log('Loaded Public Keys:')
+		console.log(JSON.stringify(cachedKeys))
 		return startServer()
 	})
 }

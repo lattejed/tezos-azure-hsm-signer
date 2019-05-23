@@ -18,7 +18,7 @@ function PubKeySecp256k1(x, y) {
 	if (!(this instanceof PubKeySecp256k1)) {
 		return new PubKeySecp256k1(x, y)
 	}
-	assert(x.length !== 32 || y.length !== 32,
+	assert(x.length === 32 && y.length === 32,
 		'Invalid X and Y values for PubKey')
 	this.x = x
 	this.y = y
@@ -55,7 +55,7 @@ PubKeySecp256k1.prototype.publicKey = function() {
 PubKeySecp256k1.prototype.publicKeySPPKFormat = function() {
 	let pk = this.publicKey()
 	let pre = Buffer.from(PRE_TZ_SECP256K1_PK, 'hex')
-	return bs58check.encode(Buffer.concat([pre, pkc]))
+	return bs58check.encode(Buffer.concat([pre, pk]))
 }
 
 /*
