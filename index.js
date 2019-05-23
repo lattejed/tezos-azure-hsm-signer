@@ -68,8 +68,9 @@ function startServer() {
 		server.on('error', (error) => {
 			reject(error)
 		})
-		server.on('connect', () => {
-			resolve(`${APP_NAME} listening at http://${ADDRESS}:${PORT}`)
+		server.on('listening', () => {
+			console.log(`${APP_NAME} listening at http://${ADDRESS}:${PORT}`)
+			resolve()
 		})
 		server.listen(PORT, ADDRESS)
 	})
@@ -132,14 +133,13 @@ function initialize() {
 	  let client = new KeyVault.KeyVaultClient(credentials)
 		return loadKeysFromAzure(client)
 	}).then(() => {
-		console.log('Loaded Public Keys:')
-		console.log(JSON.stringify(cachedKeys, null, 2))
+		console.log(`Loaded Public Keys:\n${JSON.stringify(cachedKeys, null, 2)}`)
 		return startServer()
 	})
 }
 
-initialize().then((serverMsg) => {
-	console.log(serverMsg)
+initialize().then(() => {
+	//
 }).catch((error) => {
 	console.log(error)
 })
