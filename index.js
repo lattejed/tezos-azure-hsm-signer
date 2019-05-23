@@ -57,13 +57,22 @@ app.get('/keys/:tz2PubKeyHash', (req, res, next) => {
 })
 
 app.post('/keys/:tz2PubKeyHash', (req, res, next) => {
-	// TODO: Validations
-	let key = {}
-	let payload = Buffer.from('0000', 'hex')
-	sign(key, payload).then((signature) => {
-		res.json({signature: signature})
-	}).catch((error) => {
-		next(new Error(`No public key found for ${tz2}`))
+	let tz2 = req.params.tz2PubKeyHash
+	let key = cachedKeys[tz2]
+	if (!key) {
+		return next(new Error(`No public key found for ${tz2}`))
+	}
+	var payload = ''
+	req.setEncoding('ascii') // TODO: Check this
+	req.on('data', (chunk) => {
+		payload += chunk
+	})
+	req.on('end', () => {
+		sign(key, payload).then((signature) => {
+			res.json({signature: signature})
+		}).catch((error) => {
+			next(error)
+		})
 	})
 })
 
