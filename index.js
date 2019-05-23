@@ -133,7 +133,7 @@ function initialize() {
 		return loadKeysFromAzure(client)
 	}).then(() => {
 		console.log('Loaded Public Keys:')
-		console.log(JSON.stringify(cachedKeys))
+		console.log(JSON.stringify(cachedKeys, null, 2))
 		return startServer()
 	})
 }
