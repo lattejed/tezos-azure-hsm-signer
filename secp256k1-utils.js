@@ -3,6 +3,7 @@ const assert = require('assert')
 const tiny = require('tiny-secp256k1')
 const bs58check = require('bs58check')
 const blake2 = require('blake2')
+const crypto = require('crypto')
 
 const PRE_SECP256K1_PK_UNCOMP = '04'
 const PRE_TZ_SECP256K1_PK = '03fee256'
@@ -69,6 +70,12 @@ PubKeySecp256k1.prototype.publicKeyHashTz2Format = function() {
 	h.update(pk)
 	let pkh = Buffer.concat([pre, h.digest()])
 	return bs58check.encode(pkh)
+}
+
+PubKeySecp256k1.hashForSignOperation = function(payload) {
+	let h = crypto.createHash('sha256')
+	h.update(payload)
+	return h.digest()
 }
 
 module.exports = {

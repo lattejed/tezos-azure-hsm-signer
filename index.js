@@ -62,13 +62,15 @@ app.post('/keys/:tz2PubKeyHash', (req, res, next) => {
 	if (!key) {
 		return next(new Error(`No public key found for ${tz2}`))
 	}
-	var payload = ''
+	var body = ''
 	req.setEncoding('ascii') // TODO: Check this
 	req.on('data', (chunk) => {
-		payload += chunk
+		body += chunk
 	})
 	req.on('end', () => {
-		sign(key, payload).then((signature) => {
+		let payload = body.replace(/^0x/, '')
+		let hash = PubKey.hashForSignOperation(payload)
+		sign(key, hash).then((signature) => {
 			res.json({signature: signature})
 		}).catch((error) => {
 			next(error)
@@ -135,7 +137,6 @@ function loadKeysFromAzure(client) {
 }
 
 function sign(key, payload) {
-	// TODO: Cache client?
 	return authorize().then((credentials) => {
 		let client = new KeyVault.KeyVaultClient(credentials)
 		return client.sign(KEYVAULT_URI, key.name, key.version, SIGN_ALGO, payload)
