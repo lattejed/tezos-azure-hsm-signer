@@ -40,14 +40,6 @@ const app = express()
 
 let cachedKeys = {}
 
-// MARK: -
-
-// https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
-
-let sig = 'e3a0153fd977ea70b2a8491e22eec50fdc4ff14e229971e93525f182d9156ddbb131b833071b98e91c9cc23fc6fe24ef418abaa93c451e4dad3d48335b079ff5'
-let csig = PubKey.enforceSmallSForSig(sig)
-console.log(PubKey.signatureInTzFormat(csig))
-
 // MARK: - HTTP
 
 app.get('/authorized_keys', (req, res) => {
