@@ -69,7 +69,7 @@ app.post('/keys/:tz2PubKeyHash', (req, res, next) => {
 	})
 	req.on('end', () => {
 		let payload = body.replace(/^0x/, '')
-		let hash = PubKey.hashForSignOperation(payload)
+		let hash = PubKey.hashForSignOperation(Buffer.from(payload, 'hex'))
 		sign(key, hash).then((signature) => {
 			res.json({signature: signature.result.toString('hex')})
 		}).catch((error) => {
