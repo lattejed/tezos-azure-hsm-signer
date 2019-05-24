@@ -40,6 +40,14 @@ const app = express()
 
 let cachedKeys = {}
 
+// MARK: -
+
+// https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
+
+let sig = 'e3a0153fd977ea70b2a8491e22eec50fdc4ff14e229971e93525f182d9156ddbb131b833071b98e91c9cc23fc6fe24ef418abaa93c451e4dad3d48335b079ff5'
+let csig = PubKey.enforceSmallSForSig(sig)
+console.log(PubKey.signatureInTzFormat(csig))
+
 // MARK: - HTTP
 
 app.get('/authorized_keys', (req, res) => {
@@ -69,9 +77,8 @@ app.post('/keys/:tz2PubKeyHash', (req, res, next) => {
 	})
 	req.on('end', () => {
 		let payload = body.replace(/^0x/, '')
-		let hash = PubKey.hashForSignOperation(Buffer.from(payload, 'hex'))
-		sign(key, hash).then((signature) => {
-			res.json({signature: signature.result.toString('hex')})
+		sign(key, payload).then((tzsig) => {
+			res.json({signature: tzsig})
 		}).catch((error) => {
 			next(error)
 		})
@@ -137,9 +144,15 @@ function loadKeysFromAzure(client) {
 }
 
 function sign(key, payload) {
+	let hash = PubKey.hashForSignOperation(Buffer.from(payload, 'hex'))
 	return authorize().then((credentials) => {
 		let client = new KeyVault.KeyVaultClient(credentials)
 		return client.sign(KEYVAULT_URI, key.name, key.version, SIGN_ALGO, payload)
+	}).then((azsig) => {
+		let hsig = azsig.result.toString('hex')
+		let csig = PubKey.enforceSmallSForSig(hsig)
+		let tzsig = PubKey.signatureInTzFormat(csig)
+		return Promise.resolve(tzsig)
 	})
 }
 

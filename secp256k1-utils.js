@@ -7,6 +7,14 @@ const blake2 = require('blake2')
 const PRE_SECP256K1_PK_UNCOMP = '04'
 const PRE_TZ_SECP256K1_PK = '03fee256'
 const PRE_TZ_SECP256K1_PKH = '06a1a1'
+const PRE_TZ_SECP256K1_SIG = '0d7365133f'
+const TZ_SECP256K1_SIG_LEN = 99
+const SECP256K1_ORDER = BigInt(
+	'0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141'
+)
+const SECP256K1_HALF_ORDER = BigInt(
+	'0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0'
+)
 
 /*
  * A representation of a secp256k1 public key that
@@ -30,8 +38,8 @@ function PubKeySecp256k1(x, y) {
  */
 
 PubKeySecp256k1.prototype.publicKeyUncompressed = function() {
-	let bp = Buffer.from(PRE_SECP256K1_PK_UNCOMP, 'hex')
-	return Buffer.concat([bp, this.x, this.y])
+	let pb = Buffer.from(PRE_SECP256K1_PK_UNCOMP, 'hex')
+	return Buffer.concat([pb, this.x, this.y])
 }
 
 /*
@@ -75,6 +83,33 @@ PubKeySecp256k1.hashForSignOperation = function(payload) {
 	let h = blake2.createHash('blake2b', {digestLength: 32})
 	h.update(payload)
 	return h.digest()
+}
+
+// https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
+
+PubKeySecp256k1.enforceSmallSForSig = function(sig) {
+	let R = sig.slice(0, 64)
+	let S = sig.slice(64)
+	assert(R.length === 64 && S.length === 64)
+	var s = BigInt('0x' + S)
+	if (s > SECP256K1_HALF_ORDER) {
+		s = SECP256K1_ORDER - s
+		let hs = s.toString(16).padStart(64, '0')
+		assert(hs.length === 64, 'S value of signature has invalid length')
+		return R + hs
+	} else {
+		return sig
+	}
+}
+
+PubKeySecp256k1.signatureInTzFormat = function(signature) {
+	assert(signature.length === 128, 'Invalid signature length')
+	assert(/^spsig1/.test(signature) === false, 'Signature already in Tezos format')
+	let pre = Buffer.from(PRE_TZ_SECP256K1_SIG, 'hex')
+	let sig = Buffer.from(signature, 'hex')
+	let tzsig = bs58check.encode(Buffer.concat([pre, sig]))
+	assert(tzsig.length === TZ_SECP256K1_SIG_LEN, `Signature ${tzsig} has invalid length`)
+	return tzsig
 }
 
 module.exports = {
