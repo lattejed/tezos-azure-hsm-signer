@@ -167,4 +167,5 @@ initialize().then(() => {
   console.info('Initalization finished')
 }).catch((error) => {
   console.error(error)
+	process.exit(1)
 })
