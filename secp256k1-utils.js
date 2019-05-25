@@ -22,9 +22,9 @@ const SECP256K1_HALF_ORDER = BigInt(
  * public keys in standard and Tezos-specific formats
  */
 
-function PubKeySecp256k1(x, y) {
-	if (!(this instanceof PubKeySecp256k1)) {
-		return new PubKeySecp256k1(x, y)
+function KeySecp256k1(x, y) {
+	if (!(this instanceof KeySecp256k1)) {
+		return new KeySecp256k1(x, y)
 	}
 	assert(x.length === 32 && y.length === 32,
 		'Invalid X and Y values for PubKey')
@@ -33,11 +33,25 @@ function PubKeySecp256k1(x, y) {
 }
 
 /*
+ * This is for testing with a local (insecure) private key
+ */
+
+KeySecp256k1.fromKeypair = function(privateKey, publicKey) {
+	assert(tiny.isPrivate(privateKey))
+	assert(tiny.isPoint(publicKey))
+	let x = publicKey.slice(1, 33)
+	let y = publicKey.slice(33)
+	let key = new KeySecp256k1(x, y)
+	key.privateKey = privateKey
+	return key
+}
+
+/*
  * Uncompressed EC Public Keys are of the format:
  * 0x04 + X + Y
  */
 
-PubKeySecp256k1.prototype.publicKeyUncompressed = function() {
+KeySecp256k1.prototype.publicKeyUncompressed = function() {
 	let pb = Buffer.from(PRE_SECP256K1_PK_UNCOMP, 'hex')
 	return Buffer.concat([pb, this.x, this.y])
 }
@@ -49,7 +63,7 @@ PubKeySecp256k1.prototype.publicKeyUncompressed = function() {
  *             = 0x03 is Y is odd
  */
 
-PubKeySecp256k1.prototype.publicKey = function() {
+KeySecp256k1.prototype.publicKey = function() {
 	let pk = this.publicKeyUncompressed()
 	return tiny.pointCompress(pk, true)
 }
@@ -60,7 +74,7 @@ PubKeySecp256k1.prototype.publicKey = function() {
  * for secp256k1 public keys
  */
 
-PubKeySecp256k1.prototype.publicKeySPPKFormat = function() {
+KeySecp256k1.prototype.publicKeySPPKFormat = function() {
 	let pk = this.publicKey()
 	let pre = Buffer.from(PRE_TZ_SECP256K1_PK, 'hex')
 	return bs58check.encode(Buffer.concat([pre, pk]))
@@ -70,7 +84,7 @@ PubKeySecp256k1.prototype.publicKeySPPKFormat = function() {
  *
  */
 
-PubKeySecp256k1.prototype.publicKeyHashTz2Format = function() {
+KeySecp256k1.prototype.publicKeyHashTz2Format = function() {
 	let pk = this.publicKey()
 	let pre = Buffer.from(PRE_TZ_SECP256K1_PKH, 'hex')
 	let h = blake2.createHash('blake2b', {digestLength: 20})
@@ -79,7 +93,16 @@ PubKeySecp256k1.prototype.publicKeyHashTz2Format = function() {
 	return bs58check.encode(pkh)
 }
 
-PubKeySecp256k1.hashForSignOperation = function(payload) {
+/*
+ * This is for testing with a local (insecure) private key
+ */
+
+KeySecp256k1.prototype.sign = function(hash) {
+	assert(tiny.isPrivate(this.privateKey))
+	return tiny.sign(hash, this.privateKey)
+}
+
+KeySecp256k1.hashForSignOperation = function(payload) {
 	let h = blake2.createHash('blake2b', {digestLength: 32})
 	h.update(payload)
 	return h.digest()
@@ -87,7 +110,7 @@ PubKeySecp256k1.hashForSignOperation = function(payload) {
 
 // https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
 
-PubKeySecp256k1.enforceSmallSForSig = function(sig) {
+KeySecp256k1.enforceSmallSForSig = function(sig) {
 	let R = sig.slice(0, 64)
 	let S = sig.slice(64)
 	assert(R.length === 64 && S.length === 64)
@@ -102,7 +125,7 @@ PubKeySecp256k1.enforceSmallSForSig = function(sig) {
 	}
 }
 
-PubKeySecp256k1.signatureInTzFormat = function(signature) {
+KeySecp256k1.signatureInTzFormat = function(signature) {
 	assert(signature.length === 128, 'Invalid signature length')
 	assert(/^spsig1/.test(signature) === false, 'Signature already in Tezos format')
 	let pre = Buffer.from(PRE_TZ_SECP256K1_SIG, 'hex')
@@ -113,5 +136,5 @@ PubKeySecp256k1.signatureInTzFormat = function(signature) {
 }
 
 module.exports = {
-	PubKeySecp256k1
+	KeySecp256k1
 }
