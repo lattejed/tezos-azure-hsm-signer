@@ -28,8 +28,8 @@ function KeySecp256k1(x, y) {
 	}
 	assert(x.length === 32 && y.length === 32,
 		'Invalid X and Y values for PubKey')
-	this.x = x
-	this.y = y
+	this._x = x
+	this._y = y
 }
 
 /*
@@ -42,7 +42,7 @@ KeySecp256k1.fromKeypair = function(privateKey, publicKey) {
 	let x = publicKey.slice(1, 33)
 	let y = publicKey.slice(33)
 	let key = new KeySecp256k1(x, y)
-	key.privateKey = privateKey
+	key._privateKey = privateKey
 	return key
 }
 
@@ -53,7 +53,7 @@ KeySecp256k1.fromKeypair = function(privateKey, publicKey) {
 
 KeySecp256k1.prototype.publicKeyUncompressed = function() {
 	let pb = Buffer.from(PRE_SECP256K1_PK_UNCOMP, 'hex')
-	return Buffer.concat([pb, this.x, this.y])
+	return Buffer.concat([pb, this._x, this._y])
 }
 
 /*
@@ -98,8 +98,8 @@ KeySecp256k1.prototype.publicKeyHashTz2Format = function() {
  */
 
 KeySecp256k1.prototype.sign = function(hash) {
-	assert(tiny.isPrivate(this.privateKey))
-	return tiny.sign(hash, this.privateKey)
+	assert(tiny.isPrivate(this._privateKey))
+	return tiny.sign(hash, this._privateKey)
 }
 
 KeySecp256k1.hashForSignOperation = function(payload) {

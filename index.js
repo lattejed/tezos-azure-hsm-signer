@@ -134,7 +134,6 @@ function loadKeysFromAzure() {
 				cachedKeys[tz2] = {
 					name: unpacked.name,
 					version: unpacked.version,
-					tz2: tz2,
 					sppk: pubKey.publicKeySPPKFormat()
 				}
 			})
@@ -151,7 +150,8 @@ function loadTestKeys() {
 	let tz2 = key.publicKeyHashTz2Format()
 	cachedKeys[tz2] = {
 		tz2: tz2,
-		sppk: key.publicKeySPPKFormat()
+		sppk: key.publicKeySPPKFormat(),
+		key: key
 	}
 	return Promise.resolve()
 }
@@ -181,7 +181,11 @@ function signTest(key, hash) {
 
 function initialize() {
 	return (TEST_MODE ? loadTestKeys() : loadKeysFromAzure()).then(() => {
-		console.info(`Loaded Public Keys:\n${JSON.stringify(cachedKeys, null, 2)}`)
+		let clone = Object.assign({}, cachedKeys)
+		for (let tz2 in clone) {
+			delete clone[tz2].key
+		}
+		console.info(`Loaded Keys:\n${JSON.stringify(clone, null, 2)}`)
 		return startServer()
 	})
 }
