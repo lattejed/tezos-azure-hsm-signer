@@ -151,7 +151,8 @@ function loadTestKeys() {
 	cachedKeys[tz2] = {
 		tz2: tz2,
 		sppk: key.publicKeySPPKFormat(),
-		key: key
+		privateKey: privateKey,
+		publicKey: publicKey
 	}
 	return Promise.resolve()
 }
@@ -174,18 +175,17 @@ function signHSM(key, hash) {
 }
 
 function signTest(key, hash) {
-	return Promise.resolve(key.sign(hash))
+	let sk = Buffer.from(key.privateKey, 'hex')
+	let pk = Buffer.from(key.publicKey, 'hex')
+	let sig = Key.fromKeypair(sk, pk).sign(hash)
+	return Promise.resolve({result: sig})
 }
 
 // MARK: - Startup
 
 function initialize() {
 	return (TEST_MODE ? loadTestKeys() : loadKeysFromAzure()).then(() => {
-		let clone = Object.assign({}, cachedKeys)
-		for (let tz2 in clone) {
-			delete clone[tz2].key
-		}
-		console.info(`Loaded Keys:\n${JSON.stringify(clone, null, 2)}`)
+		console.info(`Loaded Keys:\n${JSON.stringify(cachedKeys, null, 2)}`)
 		return startServer()
 	})
 }
