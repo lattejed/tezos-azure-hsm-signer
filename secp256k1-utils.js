@@ -102,6 +102,11 @@ KeySecp256k1.prototype.sign = function(hash) {
 	return tiny.sign(hash, this._privateKey)
 }
 
+KeySecp256k1.prototype.verify = function(hash, sig) {
+	assert(tiny.isPrivate(this._privateKey))
+	return tiny.verify(hash, this.publicKey(), sig)
+}
+
 KeySecp256k1.hashForSignOperation = function(payload) {
 	let h = blake2.createHash('blake2b', {digestLength: 32})
 	h.update(payload)

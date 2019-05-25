@@ -177,7 +177,9 @@ function signHSM(key, hash) {
 function signTest(key, hash) {
 	let sk = Buffer.from(key.privateKey, 'hex')
 	let pk = Buffer.from(key.publicKey, 'hex')
-	let sig = Key.fromKeypair(sk, pk).sign(hash)
+	let keyObj = Key.fromKeypair(sk, pk)
+	let sig = keyObj.sign(hash)
+	assert(keyObj.verify(hash, sig), 'Sign test produced an invalid signature')
 	return Promise.resolve({result: sig})
 }
 
