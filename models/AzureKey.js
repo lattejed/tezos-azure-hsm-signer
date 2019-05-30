@@ -26,6 +26,7 @@ function AzureKey(keyObj) {
 	assert(keyObj.key.kty === AZ_KTY,
 		`AzureKey unsupported key type ${keyObj.key.kty}`)
 	this._keyObj = keyObj
+	console.log(this.name)
 }
 
 AzureKey.PubKeyFormat = {
@@ -35,13 +36,13 @@ AzureKey.PubKeyFormat = {
 	TEZOS_HASH: 'TEZOS_HASH'
 }
 
-AzureKey.name = function(keyObj) {
+AzureKey.keyName = function(keyObj) {
 	let comps = keyObj.key.kid.split('/')
 	let keysIdx = comps.indexOf('keys')
 	return comps[keysIdx + 1]
 }
 
-AzureKey.version = function(keyObj) {
+AzureKey.keyVersion = function(keyObj) {
 	let comps = keyObj.key.kid.split('/')
 	let keysIdx = comps.indexOf('keys')
 	return comps[keysIdx + 2]
@@ -65,6 +66,14 @@ AzureKey.filterActive = function(keyObjs) {
 	}).filter((keyObj) => {
 		return typeof keyObj.key.kid !== 'undefined'
 	})
+}
+
+AzureKey.prototype.keyName = function() {
+	return AzureKey.keyName(this._keyObj)
+}
+
+AzureKey.prototype.keyVersion = function() {
+	return AzureKey.keyVersion(this._keyObj)
 }
 
 /*

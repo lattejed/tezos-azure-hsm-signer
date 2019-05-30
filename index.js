@@ -63,8 +63,8 @@ app.post('/keys/:tzKeyHash', (req, res, next) => {
 		body += chunk
 	})
 	req.on('end', () => {
-		sign(key, payload).then((tzsig) => {
-			res.json({signature: tzsig})
+		sign(key, payload).then((sig) => {
+			res.json({signature: sig})
 		}).catch((error) => {
 			next(error)
 		})
@@ -102,48 +102,44 @@ function loadKeysFromAzure() {
 	}
 	return authorize().then((credentials) => {
 		let client = new KeyVault.KeyVaultClient(credentials)
-		return client.getKeys(KEYVAULT_URI).then((keys) => {
-			let ps = keys.map(function(key) {
-				let name = unpackAzureKey(key).name
+		return client.getKeys(KEYVAULT_URI).then((keyObjs) => {
+			let ps = keyObjs.map(function(keyObj) {
+				let name = AzureKey.keyName(keyObj)
 				return client.getKeyVersions(KEYVAULT_URI, name)
 			});
 			return Promise.all(ps)
-		}).then((allKeys) => {
-			return Promise.resolve(filterActiveAzureKeys(allKeys))
-		}).then((activeKeys) => {
-			let ps = activeKeys.map((key) => {
-				let unpacked = unpackAzureKey(key)
-				return client.getKey(KEYVAULT_URI, unpacked.name, unpacked.version)
+		}).then((allKeyObjs) => {
+			return Promise.resolve(AzureKey.filterActive(allKeyObjs))
+		}).then((activeKeyObjs) => {
+			let ps = activeKeyObjs.map((keyObj) => {
+				let name = AzureKey.keyName(keyObj)
+				let version = AzureKey.keyVersion(keyObj)
+				return client.getKey(KEYVAULT_URI, name, version)
 			})
 			return Promise.all(ps)
-		}).then((keys) => {
-			let allKeys = keys.map((key) => { return key.key })
-	    let validKeys = filterAzureKeysByType(allKeys, VALID_KEY_CRV, VALID_KEY_KTY)
-	    validKeys.forEach((key) => {
-				let unpacked = unpackAzureKey(key)
-				let pubKey = new Key(key.x, key.y)
-				let tz2 = pubKey.publicKeyHashTz2Format()
-				cachedKeys[tz2] = {
-					name: unpacked.name,
-					version: unpacked.version,
-					sppk: pubKey.publicKeySPPKFormat()
-				}
-			})
-	    return Promise.resolve()
+		}).then((keyObjs) => {
+	    return Promise.resolve(keyObjs.filterValid(allKeys))
 		})
 	})
 }
 
 function loadTestKeys() {
-	testData.azureKeyObjs.forEach((keyObj) => {
-		let key = new AzureKey(keyObj)
-		let publicKeyHash = key.publicKey(AzureKey.PubKeyFormat.TEZOS_HASH)
-		cachedKeys[publicKeyHash] = {
-			publicKeyHash: publicKeyHash,
-			publicKey: key.publicKey(AzureKey.PubKeyFormat.TEZOS)
-		}
+	return Promise.resolve(testData.azureKeyObjs)
+}
+
+function loadKeys() {
+	return (TEST_MODE ? loadTestKeys() : loadKeysFromAzure()).then((keyObjs) => {
+		keyObjs.forEach((keyObj) => {
+			let key = new AzureKey(keyObj)
+			let publicKeyHash = key.publicKey(AzureKey.PubKeyFormat.TEZOS_HASH)
+			cachedKeys[publicKeyHash] = {
+				name: key.keyName(),
+				version: key.keyVersion(),
+				publicKeyHash: publicKeyHash,
+				publicKey: key.publicKey(AzureKey.PubKeyFormat.TEZOS)
+			}
+		})
 	})
-	return Promise.resolve()
 }
 
 function sign(key, payload) {
@@ -159,7 +155,7 @@ function sign(key, payload) {
 function signHSM(key, hash) {
 	return authorize().then((credentials) => {
 		let client = new KeyVault.KeyVaultClient(credentials)
-		return client.sign(KEYVAULT_URI, key.name, key.version, SIGN_ALGO, hash)
+		return client.sign(KEYVAULT_URI, key.keyName(), key.keyVersion(), SIGN_ALGO, hash)
 	})
 }
 
@@ -175,7 +171,7 @@ function signTest(key, hash) {
 // MARK: - Startup
 
 function initialize() {
-	return (TEST_MODE ? loadTestKeys() : loadKeysFromAzure()).then(() => {
+	return loadKeys().then(() => {
 		console.info(`Loaded Keys:\n${JSON.stringify(cachedKeys, null, 2)}`)
 		return startServer()
 	})
