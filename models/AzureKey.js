@@ -22,11 +22,19 @@ function AzureKey(keyObj) {
 	assert(keyObj.key.x.length === 32 && keyObj.key.y.length === 32,
 		`Invalid X and Y sizes for PubKey`)
 	assert(keyObj.key.crv === AZ_CRV_P256 || keyObj.key.crv == AZ_CRV_P256K,
-		`AzureKey unsupported key curve ${keyObj.key.crv}`)
+		`Unsupported key curve ${keyObj.key.crv}`)
 	assert(keyObj.key.kty === AZ_KTY,
-		`AzureKey unsupported key type ${keyObj.key.kty}`)
+		`Unsupported key type ${keyObj.key.kty}`)
+	if (keyObj.key.crv === AZ_CRV_P256) {
+		this._keyCurve = AZ_CRV_P256
+	}
+	else if (keyObj.key.crv === AZ_CRV_P256K) {
+		this._keyCurve = AZ_CRV_P256K
+	}
+	else {
+		assert(false, `Invalid key curve ${keyObj.key.crv}`)
+	}
 	this._keyObj = keyObj
-	console.log(this.name)
 }
 
 AzureKey.PubKeyFormat = {
@@ -34,6 +42,11 @@ AzureKey.PubKeyFormat = {
 	COMPRESSED: 'COMPRESSED',
 	TEZOS: 'TEZOS',
 	TEZOS_HASH: 'TEZOS_HASH'
+}
+
+AzureKey.KeyCurve = {
+	P256: AZ_CRV_P256,
+	P256K: AZ_CRV_P256K
 }
 
 AzureKey.keyName = function(keyObj) {
@@ -74,6 +87,10 @@ AzureKey.prototype.keyName = function() {
 
 AzureKey.prototype.keyVersion = function() {
 	return AzureKey.keyVersion(this._keyObj)
+}
+
+AzureKey.prototype.keyCurve = function () {
+	return this._keyCurve
 }
 
 /*
@@ -131,6 +148,11 @@ AzureKey.prototype.publicKey = function(fmt) {
 	else {
 		assert(false, `Invalid public key format ${fmt}`)
 	}
+}
+
+AzureKey.prototype.hashMessage = function(msg) {
+	let h = blake2.createHash('blake2b', {digestLength: 32}).update(msg)
+	return h.digest()
 }
 
 module.exports = AzureKey
