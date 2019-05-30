@@ -6,9 +6,9 @@ const blake2 = require('blake2')
 const TZ_PRE_SIG_P256 = '36f02c34'
 const TZ_PRE_SIG_P256K = '0d7365133f'
 
-function TezosSignature(key, msg) {
-	if (!(this instanceof TezosSignature)) {
-		return new TezosSignature(msg)
+function TezosSig(key, msg) {
+	if (!(this instanceof TezosSig)) {
+		return new TezosSig(msg)
 	}
   assert(key, 'Key cannot be null')
   assert(msg, 'Message cannot be null')
@@ -16,12 +16,12 @@ function TezosSignature(key, msg) {
   this._msg = msg
 }
 
-TezosSignature.prototype.hashedMessage = function() {
+TezosSig.prototype.hashedMessage = function() {
 	let h = blake2.createHash('blake2b', {digestLength: 32}).update(this._msg)
 	return h.digest()
 }
 
-TezosSignature.prototype.signatureFromRaw = function(raw) {
+TezosSig.prototype.signatureFromRaw = function(raw) {
   assert(raw.length === 128, 'Invalid raw signature size')
   let sig = null
   let pre = null

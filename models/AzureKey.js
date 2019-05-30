@@ -2,6 +2,7 @@
 const assert = require('assert')
 const bs58check = require('bs58check')
 const blake2 = require('blake2')
+const testData = require('./test-data')
 
 const TZ_PRE_PK_P256 = '03b28b7f'
 const TZ_PRE_PKH_P256 = '06a1a4'
@@ -81,6 +82,31 @@ AzureKey.filterActive = function(keyObjs) {
 	})
 }
 
+AzureKey.loadRemote = function(client, vaultUri) {
+	return client.getKeys(vaultUri).then((keyObjs) => {
+		let ps = keyObjs.map(function(keyObj) {
+			let name = AzureKey.keyName(keyObj)
+			return client.getKeyVersions(KEYVAULT_URI, name)
+		});
+		return Promise.all(ps)
+	}).then((allKeyObjs) => {
+		return Promise.resolve(AzureKey.filterActive(allKeyObjs))
+	}).then((activeKeyObjs) => {
+		let ps = activeKeyObjs.map((keyObj) => {
+			let name = AzureKey.keyName(keyObj)
+			let version = AzureKey.keyVersion(keyObj)
+			return client.getKey(KEYVAULT_URI, name, version)
+		})
+		return Promise.all(ps)
+	}).then((keyObjs) => {
+    return Promise.resolve(keyObjs.filterValid(allKeys))
+	})
+}
+
+AzureKey.loadTest = function() {
+	return Promise.resolve(testData.azureKeyObjs)
+}
+
 AzureKey.prototype.keyName = function() {
 	return AzureKey.keyName(this._keyObj)
 }
@@ -148,11 +174,6 @@ AzureKey.prototype.publicKey = function(fmt) {
 	else {
 		assert(false, `Invalid public key format ${fmt}`)
 	}
-}
-
-AzureKey.prototype.hashMessage = function(msg) {
-	let h = blake2.createHash('blake2b', {digestLength: 32}).update(msg)
-	return h.digest()
 }
 
 module.exports = AzureKey

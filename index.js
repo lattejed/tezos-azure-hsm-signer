@@ -6,7 +6,7 @@ const http = require('http')
 const msRestAzure = require('ms-rest-azure')
 const KeyVault = require('azure-keyvault')
 const AzureKey = require('./models/AzureKey')
-const testData = require('./test-data')
+const TezosSig = require('./models/TezosSig')
 
 const argv = require('yargs')
 	.usage('Usage: $0 [options]')
@@ -57,13 +57,13 @@ app.post('/keys/:tzKeyHash', (req, res, next) => {
 	if (!key) {
 		return next(new Error(`No public key found for ${tz}`))
 	}
-	var body = ''
+	var msg = ''
 	req.setEncoding('ascii') // TODO: Check this
 	req.on('data', (chunk) => {
-		body += chunk
+		msg += chunk
 	})
 	req.on('end', () => {
-		sign(key, payload).then((sig) => {
+		sign(key, msg).then((sig) => {
 			res.json({signature: sig})
 		}).catch((error) => {
 			next(error)
@@ -90,11 +90,30 @@ function startServer() {
 	})
 }
 
-// MARK: - Azure
+// MARK: - Sign
 
-function authorize() {
-  return msRestAzure.loginWithVmMSI({resource: AUTH_RESOURCE})
+function sign(key, msg) {
+	let sig = TezosSig(key, msg)
+	let hash = sig.hashedMessage()
+	return (TEST_MODE ? signTest(key, hash) : signHSM(key, hash)).then((raw) => {
+		return Promise.resolve(sig.signatureFromRaw(raw))
+	})
 }
+
+// TODO: Move this into model
+function signHSM(key, hash) {
+	return authorize().then((credentials) => {
+		let client = new KeyVault.KeyVaultClient(credentials)
+		return client.sign(KEYVAULT_URI, key.keyName(), key.keyVersion(), SIGN_ALGO, hash)
+	})
+}
+
+function signTest(key, hash) {
+	let raw = ''
+	return Promise.resolve({result: raw})
+}
+
+// MARK: - Keys
 
 function loadKeysFromAzure() {
 	if (!KEYVAULT_URI) {
@@ -102,29 +121,12 @@ function loadKeysFromAzure() {
 	}
 	return authorize().then((credentials) => {
 		let client = new KeyVault.KeyVaultClient(credentials)
-		return client.getKeys(KEYVAULT_URI).then((keyObjs) => {
-			let ps = keyObjs.map(function(keyObj) {
-				let name = AzureKey.keyName(keyObj)
-				return client.getKeyVersions(KEYVAULT_URI, name)
-			});
-			return Promise.all(ps)
-		}).then((allKeyObjs) => {
-			return Promise.resolve(AzureKey.filterActive(allKeyObjs))
-		}).then((activeKeyObjs) => {
-			let ps = activeKeyObjs.map((keyObj) => {
-				let name = AzureKey.keyName(keyObj)
-				let version = AzureKey.keyVersion(keyObj)
-				return client.getKey(KEYVAULT_URI, name, version)
-			})
-			return Promise.all(ps)
-		}).then((keyObjs) => {
-	    return Promise.resolve(keyObjs.filterValid(allKeys))
-		})
+		return AzureKey.loadRemote(client, KEYVAULT_URI)
 	})
 }
 
 function loadTestKeys() {
-	return Promise.resolve(testData.azureKeyObjs)
+	return AzureKey.loadTest()
 }
 
 function loadKeys() {
@@ -142,30 +144,10 @@ function loadKeys() {
 	})
 }
 
-function sign(key, payload) {
-	let hash = Key.hashForSignOperation(Buffer.from(payload, 'hex'))
-	return (TEST_MODE ? signTest(key, hash) : signHSM(key, hash)).then((bsig) => {
-		let hsig = bsig.result.toString('hex')
-		let csig = Key.enforceSmallSForSig(hsig)
-		let tzsig = Key.signatureInTzFormat(csig)
-		return Promise.resolve(tzsig)
-	})
-}
+// MARK: - Auth
 
-function signHSM(key, hash) {
-	return authorize().then((credentials) => {
-		let client = new KeyVault.KeyVaultClient(credentials)
-		return client.sign(KEYVAULT_URI, key.keyName(), key.keyVersion(), SIGN_ALGO, hash)
-	})
-}
-
-function signTest(key, hash) {
-	let sk = Buffer.from(key.privateKey, 'hex')
-	let pk = Buffer.from(key.publicKey, 'hex')
-	let keyObj = Key.fromKeypair(sk, pk)
-	let sig = keyObj.sign(hash)
-	assert(keyObj.verify(hash, sig), 'Sign test produced an invalid signature')
-	return Promise.resolve({result: sig})
+function authorize() {
+  return msRestAzure.loginWithVmMSI({resource: AUTH_RESOURCE})
 }
 
 // MARK: - Startup
