@@ -5,12 +5,7 @@ const express = require('express')
 const http = require('http')
 const msRestAzure = require('ms-rest-azure')
 const KeyVault = require('azure-keyvault')
-const Key = require('./secp256k1-utils').KeySecp256k1
-const {
-	unpackAzureKey,
-	filterActiveAzureKeys,
-	filterAzureKeysByType
-} = require('./utils')
+const AzureKey = require('./models/AzureKey')
 const testData = require('./test-data')
 
 const argv = require('yargs')
@@ -35,8 +30,6 @@ const TEST_MODE = argv.testMode
 const AUTH_RESOURCE = 'https://vault.azure.net'
 const APP_NAME = 'Tezos Azure Signer'
 const SIGN_ALGO = 'ES256K'
-const VALID_KEY_CRV = 'P-256K'
-const VALID_KEY_KTY = 'EC-HSM'
 
 const app = express()
 
@@ -48,21 +41,21 @@ app.get('/authorized_keys', (req, res) => {
    res.json({})
 })
 
-app.get('/keys/:tz2KeyHash', (req, res, next) => {
-	let tz2 = req.params.tz2KeyHash
-	let sppk = (cachedKeys[tz2] || {}).sppk
-	if (sppk) {
-		res.json({public_key: sppk})
+app.get('/keys/:tzKeyHash', (req, res, next) => {
+	let tz = req.params.tzKeyHash
+	let pk = cachedKeys[tz]
+	if (pk) {
+		res.json({public_key: pk.tzFormatPublicKey})
 	} else {
-		next(new Error(`No public key found for ${tz2}`))
+		next(new Error(`No public key found for ${tz}`))
 	}
 })
 
-app.post('/keys/:tz2KeyHash', (req, res, next) => {
-	let tz2 = req.params.tz2KeyHash
-	let key = cachedKeys[tz2]
+app.post('/keys/:tzKeyHash', (req, res, next) => {
+	let tz = req.params.tzKeyHash
+	let key = cachedKeys[tz]
 	if (!key) {
-		return next(new Error(`No public key found for ${tz2}`))
+		return next(new Error(`No public key found for ${tz}`))
 	}
 	var body = ''
 	req.setEncoding('ascii') // TODO: Check this
@@ -70,7 +63,6 @@ app.post('/keys/:tz2KeyHash', (req, res, next) => {
 		body += chunk
 	})
 	req.on('end', () => {
-		let payload = body.replace(/^0x/, '')
 		sign(key, payload).then((tzsig) => {
 			res.json({signature: tzsig})
 		}).catch((error) => {
@@ -143,17 +135,14 @@ function loadKeysFromAzure() {
 }
 
 function loadTestKeys() {
-	let {privateKey, publicKey} = testData
-	let sk = Buffer.from(privateKey, 'hex')
-	let pk = Buffer.from(publicKey, 'hex')
-	let key = Key.fromKeypair(sk, pk)
-	let tz2 = key.publicKeyHashTz2Format()
-	cachedKeys[tz2] = {
-		tz2: tz2,
-		sppk: key.publicKeySPPKFormat(),
-		privateKey: privateKey,
-		publicKey: publicKey
-	}
+	testData.azureKeyObjs.forEach((keyObj) => {
+		let key = new AzureKey(keyObj)
+		let publicKeyHash = key.publicKey(AzureKey.PubKeyFormat.TEZOS_HASH)
+		cachedKeys[publicKeyHash] = {
+			publicKeyHash: publicKeyHash,
+			publicKey: key.publicKey(AzureKey.PubKeyFormat.TEZOS)
+		}
+	})
 	return Promise.resolve()
 }
 
