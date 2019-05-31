@@ -1,6 +1,6 @@
 
 const assert = require('assert')
-const utils = require('./azure-utils')
+const utils = require('../utils/azure-utils')
 
 const loadKeysFromAzureHSM = function(client, vaultUri) {
   assert(client && vaultUri, 'A valid client and vault uri are required')

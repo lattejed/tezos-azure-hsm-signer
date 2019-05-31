@@ -1,5 +1,5 @@
 
-const AZ = require('./azure-constants')
+const AZ = require('../constants/azure-constants')
 
 const getKeyName = function(keyObj) {
 	let kid = keyObj.kid || keyObj.key.kid

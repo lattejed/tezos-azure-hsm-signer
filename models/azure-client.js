@@ -2,7 +2,7 @@
 const assert = require('assert')
 const msRestAzure = require('ms-rest-azure')
 const KeyVault = require('azure-keyvault')
-const AZ = require('./azure-constants')
+const AZ = require('../constants/azure-constants')
 
 const getAuthorizedAzureClient = function(vaultUri) {
   assert(vaultUri, 'A vault uri is required')

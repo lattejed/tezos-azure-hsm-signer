@@ -1,10 +1,10 @@
 
 const assert = require('assert')
-const AZ = require('./azure-constants')
-const TZ = require('./tezos-constants')
-const K = require('./secp256k1-constants')
+const AZ = require('../constants/azure-constants')
+const TZ = require('../constants/tezos-constants')
+const K = require('../constants/secp256k1-constants')
 
-const signMessage = function(key, algo, msg, hsmSignerFunc) {
+const signMessage = function(key, msg, hsmSignerFunc) {
   //
   assert(typeof msg === 'string', 'Message must be a hex string')
   //
@@ -18,7 +18,7 @@ const signMessage = function(key, algo, msg, hsmSignerFunc) {
   h.update(m)
   let hash = h.digest()
 
-  return hsmSignerFunc(key, algo, hash).then((raw) => {
+  return hsmSignerFunc(key, hash).then((raw) => {
 
     assert(Buffer.isBuffer(raw) && raw.length === 64, 'Raw signature must be a 64-byte buffer')
 
@@ -26,7 +26,7 @@ const signMessage = function(key, algo, msg, hsmSignerFunc) {
      *
      */
 
-    if (algo === AZ.SIGN_ALGO_P256) {
+    if (key.algo === AZ.SIGN_ALGO_P256) {
 
       let pre = Buffer.from(TZ.PRE_SIG_P256, 'hex')
       let sig = Buffer.from(raw, 'hex')
@@ -37,7 +37,7 @@ const signMessage = function(key, algo, msg, hsmSignerFunc) {
      *
      */
 
-    else if (algo === AZ.SIGN_ALGO_P256K) {
+    else if (key.algo === AZ.SIGN_ALGO_P256K) {
 
       /*
        * Enforce small S value

@@ -1,8 +1,8 @@
 
 const assert = require('assert')
-const PK = require('./key-constants')
-const AZ = require('./azure-constants')
-const TZ = require('./tezos-constants')
+const PK = require('../constants/key-constants')
+const AZ = require('../constants/azure-constants')
+const TZ = require('../constants/tezos-constants')
 
 const getPublicKeyFromXY = function(x, y, crv, fmt) {
   assert(Buffer.isBuffer(x) && Buffer.isBuffer(y), 'X and Y must be buffers')
