@@ -70,7 +70,7 @@ app.post('/keys/:tzKeyHash', (req, res, next) => {
 	})
 })
 
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
   console.error(err.message)
   res.status(500).send(`Error: ${err.message}`)
 })
@@ -92,10 +92,9 @@ function startServer() {
 // MARK: - Sign
 
 function sign(key, msg) {
-	let sig = TezosSig(key, msg)
-	let hash = sig.hashedMessage()
-	return (TEST_MODE ? signTest(key, hash) : signHSM(key, hash)).then((raw) => {
-		return Promise.resolve(sig.signatureFromRaw(raw))
+	let hash = TezosSig.hashedMessage(msg)
+	return (TEST_MODE ? signTest(key, hash) : signHSM(key, hash)).then((sigObj) => {
+		return Promise.resolve(TezosSig.signatureFromRaw(key, sigObj.result))
 	})
 }
 

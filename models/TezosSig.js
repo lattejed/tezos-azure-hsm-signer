@@ -6,48 +6,40 @@ const blake2 = require('blake2')
 const TZ_PRE_SIG_P256 = '36f02c34'
 const TZ_PRE_SIG_P256K = '0d7365133f'
 
-function TezosSig(key, msg) {
-	if (!(this instanceof TezosSig)) {
-		return new TezosSig(msg)
-	}
-  assert(key, 'Key cannot be null')
-  assert(msg, 'Message cannot be null')
-  this._key = key
-  this._msg = Buffer.from(msg, 'hex')
-}
+module.exports = {
 
-TezosSig.prototype.hashedMessage = function() {
-	let h = blake2.createHash('blake2b', {digestLength: 32}).update(this._msg)
-	return h.digest()
-}
+  hashedMessage: function(msg) {
+    assert(msg, 'Message cannot be null')
+  	let h = blake2.createHash('blake2b', {digestLength: 32}).update(msg)
+  	return h.digest()
+  },
 
-TezosSig.prototype.signatureFromRaw = function(raw) {
-  assert(raw.length === 128, 'Invalid raw signature size')
-  let sig = null
-  let pre = null
-  if (this._key.keyCurve() === AzureKey.KeyCurve.AZ_CRV_P256) {
-    pre = Buffer.from(TZ_PRE_SIG_P256, 'hex')
-    sig = Buffer.from(raw, 'hex')
-  }
-  else if (this._key.keyCurve() === AzureKey.KeyCurve.AZ_CRV_P256K) {
-    pre = Buffer.from(TZ_PRE_SIG_P256K, 'hex')
-    let R = raw.slice(0, 64)
-  	let S = raw.slice(64)
-  	var s = BigInt('0x' + S)
-  	if (s > P256K_HALF_ORDER) {
-  		s = P256K_ORDER - s
-  		let hs = s.toString(16).padStart(64, '0')
-  		assert(hs.length === 64, 'S value of signature has invalid length')
-  		sig = Buffer.from(R + hs, 'hex')
-  	}
+  signatureFromRaw: function(key, raw) {
+    assert(raw.length === 64, 'Invalid raw signature size')
+    if (key.signAlgo === AzureKey.SignAlgo.P256) {
+      let pre = Buffer.from(TZ_PRE_SIG_P256, 'hex')
+      let sig = Buffer.from(raw, 'hex')
+      return bs58check.encode(Buffer.concat([pre, sig]))
+    }
+    else if (key.signAlgo === AzureKey.SignAlgo.P256K) {
+      let pre = Buffer.from(TZ_PRE_SIG_P256K, 'hex')
+      let R = raw.slice(0, 64)
+    	let S = raw.slice(64)
+    	var s = BigInt('0x' + S.toString('hex'))
+      var sig = null
+    	if (s > P256K_HALF_ORDER) {
+    		s = P256K_ORDER - s
+    		let hs = s.toString(16).padStart(64, '0')
+    		assert(hs.length === 64, 'S value of signature has invalid length')
+    		sig = Buffer.from(R + hs, 'hex')
+    	}
+      else {
+        sig = raw
+      }
+      return bs58check.encode(Buffer.concat([pre, sig]))
+    }
     else {
-      sig = Buffer.from(raw, 'hex')
+      assert(false, `Invalid sign algo ${key.signAlgo}`)
     }
   }
-  else {
-    assert(false, `Invalid key curve ${this._key.keyCurve()}`)
-  }
-  return bs58check.encode(Buffer.concat([pre, sig]))
 }
-
-module.exports = TezosSig

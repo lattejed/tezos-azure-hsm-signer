@@ -54,6 +54,11 @@ AzureKey.KeyCurve = {
 	P256K: AZ_CRV_P256K
 }
 
+AzureKey.SignAlgo = {
+	P256: AZ_SIGN_ALGO_P256,
+	P256K: AZ_SIGN_ALGO_P256K
+}
+
 AzureKey.keyName = function(keyObj) {
 	let kid = keyObj.kid || keyObj.key.kid
   let comps = kid.split('/')
