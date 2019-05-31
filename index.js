@@ -29,7 +29,6 @@ const TEST_MODE = argv.testMode
 
 const AUTH_RESOURCE = 'https://vault.azure.net'
 const APP_NAME = 'Tezos Azure Signer'
-const SIGN_ALGO = 'ES256K'
 
 const app = express()
 
@@ -45,7 +44,7 @@ app.get('/keys/:tzKeyHash', (req, res, next) => {
 	let tz = req.params.tzKeyHash
 	let pk = cachedKeys[tz]
 	if (pk) {
-		res.json({public_key: pk.tzFormatPublicKey})
+		res.json({public_key: pk.publicKey})
 	} else {
 		next(new Error(`No public key found for ${tz}`))
 	}
@@ -104,7 +103,7 @@ function sign(key, msg) {
 function signHSM(key, hash) {
 	return authorize().then((credentials) => {
 		let client = new KeyVault.KeyVaultClient(credentials)
-		return client.sign(KEYVAULT_URI, key.keyName(), key.keyVersion(), SIGN_ALGO, hash)
+		return client.sign(KEYVAULT_URI, key.keyName, key.keyVersion, SIGN_ALGO, hash)
 	})
 }
 
@@ -135,8 +134,8 @@ function loadKeys() {
 			let key = new AzureKey(keyObj)
 			let publicKeyHash = key.publicKey(AzureKey.PubKeyFormat.TEZOS_HASH)
 			cachedKeys[publicKeyHash] = {
-				name: key.keyName(),
-				version: key.keyVersion(),
+				keyName: key.keyName(),
+				keyVersion: key.keyVersion(),
 				publicKeyHash: publicKeyHash,
 				publicKey: key.publicKey(AzureKey.PubKeyFormat.TEZOS)
 			}

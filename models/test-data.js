@@ -42,7 +42,7 @@ module.exports = {
 	    "updated": "2019-05-29T10:43:52+00:00"
 	  },
 	  "key": {
-	    "crv": "P-256K",
+	    "crv": "SECP256K1",
 	    "d": null,
 	    "dp": null,
 	    "dq": null,

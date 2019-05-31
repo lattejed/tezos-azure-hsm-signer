@@ -9,7 +9,9 @@ const TZ_PRE_PKH_P256 = '06a1a4'
 const TZ_PRE_PK_P256K = '03fee256'
 const TZ_PRE_PKH_P256K = '06a1a1'
 const AZ_CRV_P256 = 'P-256'
-const AZ_CRV_P256K = 'P-256K'
+const AZ_CRV_P256K = 'SECP256K1'
+const AZ_SIGN_ALGO_P256 = 'ES256'
+const AZ_SIGN_ALGO_P256K = 'ES256K'
 const AZ_KTY = 'EC-HSM'
 
 /*
@@ -51,14 +53,16 @@ AzureKey.KeyCurve = {
 }
 
 AzureKey.keyName = function(keyObj) {
-	let comps = keyObj.key.kid.split('/')
-	let keysIdx = comps.indexOf('keys')
+	let kid = keyObj.kid || keyObj.key.kid
+  let comps = kid.split('/')
+  let keysIdx = comps.indexOf('keys')
 	return comps[keysIdx + 1]
 }
 
 AzureKey.keyVersion = function(keyObj) {
-	let comps = keyObj.key.kid.split('/')
-	let keysIdx = comps.indexOf('keys')
+	let kid = keyObj.kid || keyObj.key.kid
+  let comps = kid.split('/')
+  let keysIdx = comps.indexOf('keys')
 	return comps[keysIdx + 2]
 }
 
@@ -78,7 +82,7 @@ AzureKey.filterActive = function(keyObjs) {
 			return b.attributes.created - a.attributes.created
 		})[0] || {}
 	}).filter((keyObj) => {
-		return typeof keyObj.key.kid !== 'undefined'
+		return typeof keyObj.kid !== 'undefined'
 	})
 }
 
@@ -86,7 +90,7 @@ AzureKey.loadRemote = function(client, vaultUri) {
 	return client.getKeys(vaultUri).then((keyObjs) => {
 		let ps = keyObjs.map(function(keyObj) {
 			let name = AzureKey.keyName(keyObj)
-			return client.getKeyVersions(KEYVAULT_URI, name)
+			return client.getKeyVersions(vaultUri, name)
 		});
 		return Promise.all(ps)
 	}).then((allKeyObjs) => {
@@ -95,11 +99,11 @@ AzureKey.loadRemote = function(client, vaultUri) {
 		let ps = activeKeyObjs.map((keyObj) => {
 			let name = AzureKey.keyName(keyObj)
 			let version = AzureKey.keyVersion(keyObj)
-			return client.getKey(KEYVAULT_URI, name, version)
+			return client.getKey(vaultUri, name, version)
 		})
 		return Promise.all(ps)
 	}).then((keyObjs) => {
-    return Promise.resolve(keyObjs.filterValid(allKeys))
+    return Promise.resolve(AzureKey.filterValid(keyObjs))
 	})
 }
 

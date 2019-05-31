@@ -13,7 +13,7 @@ function TezosSig(key, msg) {
   assert(key, 'Key cannot be null')
   assert(msg, 'Message cannot be null')
   this._key = key
-  this._msg = msg
+  this._msg = Buffer.from(msg, 'hex')
 }
 
 TezosSig.prototype.hashedMessage = function() {
@@ -49,3 +49,5 @@ TezosSig.prototype.signatureFromRaw = function(raw) {
   }
   return bs58check.encode(Buffer.concat([pre, sig]))
 }
+
+module.exports = TezosSig
