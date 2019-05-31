@@ -2,6 +2,7 @@
 
 const assert = require('assert')
 const express = require('express')
+const bodyParser = require('body-parser')
 const http = require('http')
 const msRestAzure = require('ms-rest-azure')
 const KeyVault = require('azure-keyvault')
@@ -36,6 +37,8 @@ let cachedKeys = {}
 
 // MARK: - HTTP
 
+app.use(bodyParser.json({strict: false}))
+
 app.get('/authorized_keys', (req, res) => {
    res.json({})
 })
@@ -56,17 +59,10 @@ app.post('/keys/:tzKeyHash', (req, res, next) => {
 	if (!key) {
 		return next(new Error(`No public key found for ${tz}`))
 	}
-	var msg = ''
-	req.setEncoding('ascii')
-	req.on('data', (chunk) => {
-		msg += chunk
-	})
-	req.on('end', () => {
-		sign(key, msg).then((sig) => {
-			res.json({signature: sig})
-		}).catch((error) => {
-			next(error)
-		})
+	sign(key, req.body).then((sig) => {
+		res.json({signature: sig})
+	}).catch((error) => {
+		next(error)
 	})
 })
 

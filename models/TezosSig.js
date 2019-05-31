@@ -2,6 +2,7 @@
 const assert = require('assert')
 const bs58check = require('bs58check')
 const blake2 = require('blake2')
+const AzureKey = require('./AzureKey')
 
 const TZ_PRE_SIG_P256 = '36f02c34'
 const TZ_PRE_SIG_P256K = '0d7365133f'
@@ -10,7 +11,8 @@ module.exports = {
 
   hashedMessage: function(msg) {
     assert(msg, 'Message cannot be null')
-  	let h = blake2.createHash('blake2b', {digestLength: 32}).update(msg)
+    let m = Buffer.from(msg, 'hex')
+  	let h = blake2.createHash('blake2b', {digestLength: 32}).update(m)
   	return h.digest()
   },
 
