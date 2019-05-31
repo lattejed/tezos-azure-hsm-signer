@@ -103,7 +103,7 @@ function sign(key, msg) {
 function signHSM(key, hash) {
 	return authorize().then((credentials) => {
 		let client = new KeyVault.KeyVaultClient(credentials)
-		return client.sign(KEYVAULT_URI, key.keyName, key.keyVersion, SIGN_ALGO, hash)
+		return client.sign(KEYVAULT_URI, key.keyName, key.keyVersion, key.signAlgo, hash)
 	})
 }
 
@@ -137,7 +137,8 @@ function loadKeys() {
 				keyName: key.keyName(),
 				keyVersion: key.keyVersion(),
 				publicKeyHash: publicKeyHash,
-				publicKey: key.publicKey(AzureKey.PubKeyFormat.TEZOS)
+				publicKey: key.publicKey(AzureKey.PubKeyFormat.TEZOS),
+				signAlgo: key.signAlgo()
 			}
 		})
 	})

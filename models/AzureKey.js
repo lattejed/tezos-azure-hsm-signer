@@ -30,9 +30,11 @@ function AzureKey(keyObj) {
 		`Unsupported key type ${keyObj.key.kty}`)
 	if (keyObj.key.crv === AZ_CRV_P256) {
 		this._keyCurve = AZ_CRV_P256
+		this._signAlgo = AZ_SIGN_ALGO_P256
 	}
 	else if (keyObj.key.crv === AZ_CRV_P256K) {
 		this._keyCurve = AZ_CRV_P256K
+		this._signAlgo = AZ_SIGN_ALGO_P256K
 	}
 	else {
 		assert(false, `Invalid key curve ${keyObj.key.crv}`)
@@ -121,6 +123,10 @@ AzureKey.prototype.keyVersion = function() {
 
 AzureKey.prototype.keyCurve = function () {
 	return this._keyCurve
+}
+
+AzureKey.prototype.signAlgo = function () {
+	return this._signAlgo
 }
 
 /*
