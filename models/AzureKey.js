@@ -11,7 +11,7 @@ const TZ_PRE_PKH_P256K = '06a1a1'
 const AZ_CRV_P256 = 'P-256'
 const AZ_CRV_P256K = 'SECP256K1'
 const AZ_SIGN_ALGO_P256 = 'ES256'
-const AZ_SIGN_ALGO_P256K = 'ES256K'
+const AZ_SIGN_ALGO_P256K = 'ECDSA256' // https://github.com/Azure/azure-sdk-for-node/issues/4603
 const AZ_KTY = 'EC-HSM'
 
 /*
