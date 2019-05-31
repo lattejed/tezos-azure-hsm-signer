@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha **/*.test.js",
+    "test-watch": "nodemon --exec \"npm test\""
   },
   "author": "",
   "license": "ISC",
@@ -15,7 +16,9 @@
     "bs58check": "^2.1.2",
     "express": "^4.17.0",
     "ms-rest-azure": "^2.6.0",
-    "tiny-secp256k1": "^1.1.2",
     "yargs": "^13.2.4"
+  },
+  "devDependencies": {
+    "mocha": "^6.1.4"
   }
 }
