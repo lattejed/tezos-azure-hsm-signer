@@ -7,6 +7,11 @@ const AzureKey = require('./AzureKey')
 const TZ_PRE_SIG_P256 = '36f02c34'
 const TZ_PRE_SIG_P256K = '0d7365133f'
 
+const P256K_ORDER =
+  '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141'
+const P256K_HALF_ORDER =
+  '0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0'
+
 module.exports = {
 
   hashedMessage: function(msg) {
@@ -25,16 +30,16 @@ module.exports = {
     }
     else if (key.signAlgo === AzureKey.SignAlgo.P256K) {
       let pre = Buffer.from(TZ_PRE_SIG_P256K, 'hex')
-      let R = raw.slice(0, 64)
-    	let S = raw.slice(64)
-    	var s = BigInt('0x' + S.toString('hex'))
+      let R = raw.slice(0, 32).toString('hex')
+      let S = raw.slice(32).toString('hex')
+      var s = BigInt('0x' + S)
       var sig = null
-    	if (s > P256K_HALF_ORDER) {
-    		s = P256K_ORDER - s
-    		let hs = s.toString(16).padStart(64, '0')
-    		assert(hs.length === 64, 'S value of signature has invalid length')
-    		sig = Buffer.from(R + hs, 'hex')
-    	}
+      if (s > BigInt(P256K_HALF_ORDER)) {
+        s = BigInt(P256K_ORDER) - s
+        let hs = s.toString(16).padStart(64, '0')
+        assert(hs.length === 64, 'S value of signature has invalid length')
+        sig = Buffer.from(R + hs, 'hex')
+      }
       else {
         sig = raw
       }

@@ -94,7 +94,6 @@ function sign(key, msg) {
 	})
 }
 
-// TODO: Move this into model
 function signHSM(key, hash) {
 	return authorize().then((credentials) => {
 		let client = new KeyVault.KeyVaultClient(credentials)
