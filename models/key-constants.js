@@ -1,0 +1,10 @@
+
+module.exports = {
+
+  UNCOMPRESSED: 'UNCOMPRESSED',
+	COMPRESSED: 'COMPRESSED',
+
+  TEZOS: 'TEZOS',
+	TEZOS_HASH: 'TEZOS_HASH'
+
+}
