@@ -58,7 +58,7 @@ app.post('/keys/:tzKeyHash', (req, res, next) => {
 		return next(new Error(`No public key found for ${tz}`))
 	}
 	var msg = ''
-	req.setEncoding('ascii') // TODO: Check this
+	req.setEncoding('ascii')
 	req.on('data', (chunk) => {
 		msg += chunk
 	})
