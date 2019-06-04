@@ -23,8 +23,8 @@ const getPublicKeyFromXY = function(x, y, crv, fmt) {
 
   /*
    * Compressed EC Public Keys are of the format:
-   * Parity byte + X where
-   * Parity byte = 0x02 if Y is even
+   * parity byte + X where
+   * parity byte = 0x02 if Y is even
    *             = 0x03 is Y is odd
    *
    */
@@ -38,8 +38,9 @@ const getPublicKeyFromXY = function(x, y, crv, fmt) {
 	}
 
   /*
-   * Uncompressed EC Public Keys are of the format:
-   * 0x04 + X + Y
+   * Tezos public keys are of the format
+   * prefix + compressed public key
+   * base58 encoded with a checksum
    */
 
 	else if (fmt === PK.TEZOS) {
@@ -59,17 +60,14 @@ const getPublicKeyFromXY = function(x, y, crv, fmt) {
 	}
 
   /*
-   * Uncompressed EC Public Keys are of the format:
-   * 0x04 + X + Y
+   * Tezos public key hashes are of the format
+   * prefix + blake2b has of compressed public key
+   * base58 encoded with a checksum
    */
 
 	else if (fmt === PK.TEZOS_HASH) {
 
     let pk = getPublicKeyFromXY(x, y, crv, PK.COMPRESSED)
-
-    /*
-     * Enforce small S values
-     */
 
 		if (crv === AZ.CRV_P256) {
 			var pre = Buffer.from(TZ.PRE_PKH_P256, 'hex')
