@@ -1,6 +1,6 @@
 
 const assert = require('assert')
-const PK = require('../constants/key-constants')
+const PK = require('../constants/pubkey-constants')
 const AZ = require('../constants/azure-constants')
 const TZ = require('../constants/tezos-constants')
 
