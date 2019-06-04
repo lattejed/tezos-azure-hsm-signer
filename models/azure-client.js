@@ -56,7 +56,7 @@ const loadKeysWithClient = function(vaultUri) {
 
 }
 
-const signWithClient = function(vaultUri, key, algo, msg) {  
+const signWithClient = function(vaultUri, key, algo) {  
   return function(key, algo, hash) {
     return getClient(vaultUri).then((client) => {
       return client.sign(vaultUri, key.keyName, key.keyVersion, algo, hash)

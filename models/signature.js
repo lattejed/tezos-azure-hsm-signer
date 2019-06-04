@@ -1,10 +1,12 @@
 
 const assert = require('assert')
+const blake2 = require('blake2')
+const bs58check = require('bs58check')
 const AZ = require('../constants/azure-constants')
 const TZ = require('../constants/tezos-constants')
 const K = require('../constants/secp256k1-constants')
 
-const signMessage = function(key, msg, hsmSignerFunc) {
+const createSignature = function(key, msg, hsmSignerFunc) {
   assert(key, 'A key is required')
   assert(typeof msg === 'string', 'Message must be a hex string')
   assert(hsmSignerFunc, 'A signer function is required')
@@ -60,5 +62,8 @@ const signMessage = function(key, msg, hsmSignerFunc) {
     }
   })
 
+}
 
+module.exports = {
+  createSignature
 }

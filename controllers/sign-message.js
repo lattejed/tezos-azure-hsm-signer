@@ -1,6 +1,6 @@
 
 const {signWithClient} = require('../models/azure-client')
-const {signMessage} = require('../models/signature')
+const {createSignature} = require('../models/signature')
 
 const signMessage = function(keys, client, vaultUri, watermark, magicBytes) {
   return function(req, res, next) {
@@ -9,8 +9,8 @@ const signMessage = function(keys, client, vaultUri, watermark, magicBytes) {
     if (!key) {
   		return next(new Error(`No public key found for ${tz}`))
   	}
-    let signerFunc = client.signWithClient(vaultUri, key, msg)
-    return signMessage(key, req.body, signerFunc).then(sig) => {
+    let signerFunc = client.signWithClient(vaultUri, key)
+    createSignature(key, req.body, signerFunc).then((sig) => {
       res.json({signature: sig})
     }).catch((error) => {
   		next(error)

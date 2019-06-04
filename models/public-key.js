@@ -1,5 +1,7 @@
 
 const assert = require('assert')
+const blake2 = require('blake2')
+const bs58check = require('bs58check')
 const PK = require('../constants/pubkey-constants')
 const AZ = require('../constants/azure-constants')
 const TZ = require('../constants/tezos-constants')
@@ -31,7 +33,7 @@ const getPublicKeyFromXY = function(x, y, crv, fmt) {
 
 		let biy = BigInt('0x' + y.toString('hex'))
 		let pre = Buffer.from(biy % BigInt(2) == 0 ? '02' : '03', 'hex')
-		return Buffer.concat([pre, this._keyObj.key.x])
+		return Buffer.concat([pre, x])
 
 	}
 
@@ -79,7 +81,7 @@ const getPublicKeyFromXY = function(x, y, crv, fmt) {
 			assert(false, `Invalid key curve ${crv}`)
 		}
 
-    
+
 		let h = blake2.createHash('blake2b', {digestLength: 20}).update(pk)
 		let pkh = Buffer.concat([pre, h.digest()])
 		return bs58check.encode(pkh)
