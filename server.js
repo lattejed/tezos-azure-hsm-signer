@@ -4,6 +4,7 @@ const assert = require('assert')
 const express = require('express')
 const bodyParser = require('body-parser')
 const http = require('http')
+const client = require('../models/azure-client')
 
 const argv = require('yargs')
 	.usage('Usage: $0 [options]')
@@ -31,13 +32,13 @@ const cachedKeys = {}
 app.use(bodyParser.json({strict: false}))
 app.get('/authorized_keys', getAuthorizedKeys())
 app.get('/keys/:tzKeyHash', getPubKey(cachedKeys))
-app.post('/keys/:tzKeyHash', signMessage(cachedKeys, KEYVAULT_URI, CHECK_HIGH_WATERMARK, MAGIC_BYTES))
+app.post('/keys/:tzKeyHash', signMessage(cachedKeys, client, KEYVAULT_URI, CHECK_HIGH_WATERMARK, MAGIC_BYTES))
 app.use(handleError())
 
 server.on('listening', () => {
 	console.info(`Server listening at http://${ADDRESS}:${PORT}`)
   console.info(`Loading keys...`)
-  loadKeys(KEYVAULT_URI).then((keys) => {
+  loadKeys(client, KEYVAULT_URI).then((keys) => {
     cachedKeys = keys
     console.info(`Loaded keys   `)
   }).catch((error) => {

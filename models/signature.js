@@ -5,9 +5,9 @@ const TZ = require('../constants/tezos-constants')
 const K = require('../constants/secp256k1-constants')
 
 const signMessage = function(key, msg, hsmSignerFunc) {
-  //
+  assert(key, 'A key is required')
   assert(typeof msg === 'string', 'Message must be a hex string')
-  //
+  assert(hsmSignerFunc, 'A signer function is required')
 
   /*
    *

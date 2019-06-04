@@ -64,6 +64,11 @@ const getPublicKeyFromXY = function(x, y, crv, fmt) {
 	else if (fmt === PK.TEZOS_HASH) {
 
     let pk = getPublicKeyFromXY(x, y, crv, PK.COMPRESSED)
+
+    /*
+     * Enforce small S values
+     */
+
 		if (crv === AZ.CRV_P256) {
 			var pre = Buffer.from(TZ.PRE_PKH_P256, 'hex')
 		}
@@ -73,6 +78,8 @@ const getPublicKeyFromXY = function(x, y, crv, fmt) {
 		else {
 			assert(false, `Invalid key curve ${crv}`)
 		}
+
+    
 		let h = blake2.createHash('blake2b', {digestLength: 20}).update(pk)
 		let pkh = Buffer.concat([pre, h.digest()])
 		return bs58check.encode(pkh)
