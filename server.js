@@ -51,9 +51,9 @@ app.use(handleError())
 server.on('listening', () => {
 	console.info(`Server listening at http://${ADDRESS}:${PORT}`)
   console.info(`Loading keys...`)
-  loadKeys(client, KEYVAULT_URI).then((keys) => {
+  loadKeys(hsmClient, KEYVAULT_URI).then((keys) => {
     cachedKeys = keys
-    console.info(`Loaded keys   `)
+    console.info(`Loaded keys OK`)
   }).catch((error) => {
     console.error(`Unable to load keys, exiting`)
     console.error(error)

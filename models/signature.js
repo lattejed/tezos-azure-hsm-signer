@@ -13,7 +13,7 @@ const createSignature = function(key, op, hsmSignerFunc) {
   assert(hsmSignerFunc, 'A signer function is required')
 
   /*
-   *
+   * Blake2B hash the incoming op. Digest length must be 32.
    */
 
   let m = Buffer.from(op, 'hex')
@@ -23,12 +23,17 @@ const createSignature = function(key, op, hsmSignerFunc) {
 
   return hsmSignerFunc(key, hash).then((result) => {
 
+    /*
+     * Signer must return a 64 byte buffer
+     */
+
     let raw = result.result
 
     assert(Buffer.isBuffer(raw) && raw.length === 64, 'Raw signature must be a 64-byte buffer')
 
     /*
-     *
+     * P256 signatures are of the format
+     * prefix + raw signature base58 encoded with a checksum
      */
 
     if (key.signAlgo === AZ.SIGN_ALGO_P256) {
@@ -39,7 +44,9 @@ const createSignature = function(key, op, hsmSignerFunc) {
     }
 
     /*
-     *
+     * P256K signatures are of the format
+     * prefix + raw signature base58 encoded with a checksum
+     * S values must be in the lower half of the curve's order
      */
 
     else if (key.signAlgo === AZ.SIGN_ALGO_P256K) {
