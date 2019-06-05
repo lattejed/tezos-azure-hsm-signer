@@ -2,25 +2,28 @@
 const assert = require('assert')
 const blake2 = require('blake2')
 const bs58check = require('bs58check')
+
 const AZ = require('../constants/azure-constants')
 const TZ = require('../constants/tezos-constants')
 const K = require('../constants/secp256k1-constants')
 
-const createSignature = function(key, msg, hsmSignerFunc) {
+const createSignature = function(key, op, hsmSignerFunc) {
   assert(key, 'A key is required')
-  assert(typeof msg === 'string', 'Message must be a hex string')
+  assert(typeof op === 'string', 'Op must be a hex string')
   assert(hsmSignerFunc, 'A signer function is required')
 
   /*
    *
    */
 
-  let m = Buffer.from(msg, 'hex')
+  let m = Buffer.from(op, 'hex')
   let h = blake2.createHash('blake2b', {digestLength: 32})
   h.update(m)
   let hash = h.digest()
 
-  return hsmSignerFunc(key, hash).then((raw) => {
+  return hsmSignerFunc(key, hash).then((result) => {
+
+    let raw = result.result
 
     assert(Buffer.isBuffer(raw) && raw.length === 64, 'Raw signature must be a 64-byte buffer')
 
@@ -28,7 +31,7 @@ const createSignature = function(key, msg, hsmSignerFunc) {
      *
      */
 
-    if (key.algo === AZ.SIGN_ALGO_P256) {
+    if (key.signAlgo === AZ.SIGN_ALGO_P256) {
 
       let pre = Buffer.from(TZ.PRE_SIG_P256, 'hex')
       let sig = Buffer.from(raw, 'hex')
@@ -39,7 +42,7 @@ const createSignature = function(key, msg, hsmSignerFunc) {
      *
      */
 
-    else if (key.algo === AZ.SIGN_ALGO_P256K) {
+    else if (key.signAlgo === AZ.SIGN_ALGO_P256K) {
 
       /*
        * Enforce small S values
@@ -62,6 +65,10 @@ const createSignature = function(key, msg, hsmSignerFunc) {
       }
 
       return Promise.resolve(bs58check.encode(Buffer.concat([pre, sig])))
+    }
+
+    else {
+      return Promise.reject(new Error(`Invalid signing algorithm ${key.signAlgo}`))
     }
   })
 

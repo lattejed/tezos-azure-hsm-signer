@@ -15,9 +15,9 @@ const P256K_HALF_ORDER =
 
 module.exports = {
 
-  hashedMessage: function(msg) {
-    assert(msg, 'Message cannot be null')
-    let m = Buffer.from(msg, 'hex')
+  hashedMessage: function(op) {
+    assert(op, 'Message cannot be null')
+    let m = Buffer.from(op, 'hex')
   	let h = blake2.createHash('blake2b', {digestLength: 32}).update(m)
   	return h.digest()
   },

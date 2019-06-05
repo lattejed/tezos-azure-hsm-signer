@@ -1,50 +1,44 @@
 
 const assert = require('assert')
 const {signMessage} = require('../../controllers/sign-message')
-const client = require('../../models/dummy-client')
+const {testOps, testKeys} = require('../test-data')
+const {req, res, next} = require('../express-mock')
+const client = require('../client-mock')
 
-const keys = {
-  "tz3QPpd8iER4ZUUTTDLjCbsNJhowrAVVz2Ys": {
-    "keyName": "KeyVaultTest-SignerKeyP256",
-    "keyVersion": "1d74b30f02d545759278192bd4ef42a7",
-    "publicKeyHash": "tz3QPpd8iER4ZUUTTDLjCbsNJhowrAVVz2Ys",
-    "publicKey": "p2pk66FrD7CenApRiHgnGtr86DEzXjjzqMbLvTVX757mZG8fArSRR5e",
-    "signAlgo": "ES256"
-  },
-  "tz2GZguWayWgWFVaQAZMvbfTbeyruHWDDvR6": {
-    "keyName": "KeyVaultTest-SignerKeyP256K",
-    "keyVersion": "5469ae1a139240089866cb9b88c9024e",
-    "publicKeyHash": "tz2GZguWayWgWFVaQAZMvbfTbeyruHWDDvR6",
-    "publicKey": "sppk7aPRf3mXkUSxz3CWzH8SEBP2ASV1PbM3yb7WqvAbbZUqW7EokEu",
-    "signAlgo": "ECDSA256"
-  }
-}
+describe('controllers/sign-message', () => {
 
-const validRequest = {
-  params: {
-    tzKeyHash: 'tz2GZguWayWgWFVaQAZMvbfTbeyruHWDDvR6'
-  },
-  body: '44444444'
-}
-
-const response = {
-  json: function(obj) {
-    return JSON.stringify(obj)
-  }
-}
-
-const next = function(error) {
-  throw error
-}
-/*
-describe('sign-message', () => {
   describe('signMessage', () => {
-    it('Should create a valid message signature', () => {
 
+    it('Should sign a dummy block', (done) => {
 
-      let sig = signMessage(keys, client, null, null, null)(validRequest, response, next)
-      console.log(sig)
+      let hash = testKeys.P256.publicKeyTZH
+      signMessage(testKeys, client, client)(req(hash, '01'), res((json) => {
+        assert(json.signature === testKeys.P256.signedZeroHash, `Signature should be ${testKeys.P256.signedZeroHash}`)
+        done()
+      }), next())
 
     })
+
+    it('Should sign a dummy endorsement', (done) => {
+
+      let hash = testKeys.P256.publicKeyTZH
+      signMessage(testKeys, client, client)(req(hash, '02'), res((json) => {
+        assert(json.signature === testKeys.P256.signedZeroHash, `Signature should be ${testKeys.P256.signedZeroHash}`)
+        done()
+      }), next())
+
+    })
+
+    it('Should sign a dummy generic transaction', (done) => {
+
+      let hash = testKeys.P256.publicKeyTZH
+      signMessage(testKeys, client, client)(req(hash, '03'), res((json) => {
+        assert(json.signature === testKeys.P256.signedZeroHash, `Signature should be ${testKeys.P256.signedZeroHash}`)
+        done()
+      }), next())
+
+    })
+
   })
-})*/
+
+})

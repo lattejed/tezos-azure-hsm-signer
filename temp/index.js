@@ -87,8 +87,8 @@ function startServer() {
 
 // MARK: - Sign
 
-function sign(key, msg) {
-	let hash = TezosSig.hashedMessage(msg)
+function sign(key, op) {
+	let hash = TezosSig.hashedMessage(op)
 	return (TEST_MODE ? signTest(key, hash) : signHSM(key, hash)).then((sigObj) => {
 		return Promise.resolve(TezosSig.signatureFromRaw(key, sigObj.result))
 	})

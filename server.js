@@ -4,7 +4,9 @@ const assert = require('assert')
 const express = require('express')
 const bodyParser = require('body-parser')
 const http = require('http')
-const client = require('./models/azure-client')
+
+const hsmClient = require('./models/hsm-client')
+const msgClient = require('./models/msg-client')
 
 const {loadKeys} = require('./controllers/load-keys')
 const {getAuthorizedKeys} = require('./controllers/get-authorized-keys')
@@ -38,10 +40,10 @@ let cachedKeys = {}
 app.use(bodyParser.json({strict: false}))
 app.get('/authorized_keys', getAuthorizedKeys())
 app.get('/keys/:tzKeyHash', getPubKey(cachedKeys))
-app.post('/keys/:tzKeyHash', signMessage(cachedKeys, client, KEYVAULT_URI, CHECK_HIGH_WATERMARK, MAGIC_BYTES))
+app.post('/keys/:tzKeyHash', signMessage(cachedKeys, hsmClient, msgClient, KEYVAULT_URI, CHECK_HIGH_WATERMARK, MAGIC_BYTES))
 
 app.get('/listen', (req, res, next) => {
-		console.log(req.hostname)
+	console.log(req.hostname)
 })
 
 app.use(handleError())

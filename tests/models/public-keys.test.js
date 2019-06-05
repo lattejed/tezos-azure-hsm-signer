@@ -4,7 +4,7 @@ const {testKeys} = require('../test-data')
 const {getPublicKeyFromXY} = require('../../models/public-key')
 const PK = require('../../constants/pubkey-constants')
 
-describe('public-keys', () => {
+describe('models/public-keys', () => {
 
   describe('getPublicKeyFromXY', () => {
 

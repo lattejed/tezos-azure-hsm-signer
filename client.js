@@ -3,7 +3,6 @@
 const readline = require('readline')
 const stdin = process.stdin
 const {clientListen, clientSend} = require('./models/message')
-const {serverListen, serverSend} = require('./models/message') // TODO:
 
 readline.emitKeypressEvents(stdin)
 if (stdin.isTTY) {
@@ -18,12 +17,12 @@ stdin.on('keypress', (str, key) => {
 })
 
 try {
-  clientListen((msg) => {
-    let request = msg // TODO:
+  clientListen((op) => {
+    let request = op // TODO:
     console.info(`Confirm transaction ${request} [Ny]?`)
     const listener = function(str, key) {
       if (key.sequence === 'y') {
-        clientSend(msg)
+        clientSend(op)
         console.info(`Transaction ${request} confirmed`)
       }
       else {
