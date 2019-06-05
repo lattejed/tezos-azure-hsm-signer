@@ -10,7 +10,7 @@ const getClient = function(vaultUri) {
 
   let opts = {resource: AZ.AUTH_RESOURCE}
   return msRestAzure.loginWithVmMSI(opts).then((credentials) => {
-    return new KeyVault.KeyVaultClient(credentials)
+    return Promise.resolve(new KeyVault.KeyVaultClient(credentials))
   })
 }
 
@@ -20,7 +20,7 @@ const loadKeysWithClient = function(vaultUri) {
 
     // Get all keys in vault
 
-    client.getKeys(vaultUri).then((keyObjs) => {
+    return client.getKeys(vaultUri).then((keyObjs) => {
 
   		let ps = keyObjs.map(function(keyObj) {
   			let name = utils.getKeyName(keyObj)
@@ -56,7 +56,7 @@ const loadKeysWithClient = function(vaultUri) {
 
 }
 
-const signWithClient = function(vaultUri, key, algo) {  
+const signWithClient = function(vaultUri, key, algo) {
   return function(key, algo, hash) {
     return getClient(vaultUri).then((client) => {
       return client.sign(vaultUri, key.keyName, key.keyVersion, algo, hash)

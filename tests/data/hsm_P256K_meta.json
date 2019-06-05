@@ -1,0 +1,9 @@
+{
+  "kid": "https://keyvaulttest-keyvault.vault.azure.net/keys/KeyVaultTest-SignerKeyP256K/5469ae1a139240089866cb9b88c9024e",
+  "attributes": {
+    "enabled": true,
+    "created": "2019-05-31T04:31:06.000Z",
+    "updated": "2019-05-31T04:31:06.000Z",
+    "recoveryLevel": "Purgeable"
+  }
+}

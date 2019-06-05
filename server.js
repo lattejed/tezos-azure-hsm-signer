@@ -41,11 +41,6 @@ app.use(bodyParser.json({strict: false}))
 app.get('/authorized_keys', getAuthorizedKeys())
 app.get('/keys/:tzKeyHash', getPubKey(cachedKeys))
 app.post('/keys/:tzKeyHash', signMessage(cachedKeys, hsmClient, msgClient, KEYVAULT_URI, CHECK_HIGH_WATERMARK, MAGIC_BYTES))
-
-app.get('/listen', (req, res, next) => {
-	console.log(req.hostname)
-})
-
 app.use(handleError())
 
 server.on('listening', () => {

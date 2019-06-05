@@ -1,0 +1,18 @@
+{
+  "key": {
+    "kid": "https://keyvaulttest-keyvault.vault.azure.net/keys/KeyVaultTest-SignerKeyP256/1d74b30f02d545759278192bd4ef42a7",
+    "kty": "EC-HSM",
+    "keyOps": [
+      "sign"
+    ],
+    "crv": "P-256",
+    "x": "3c8zui0cSl3X5V2Cks67kmw9iGG9eCRA20T3E4Rq4oo=",
+    "y": "9YUQMNtL7rjjjLQvOxCZSOR2HvGAgeY9F7egiR5Rdkg="
+  },
+  "attributes": {
+    "enabled": true,
+    "created": "2019-05-31T04:31:27.000Z",
+    "updated": "2019-05-31T04:31:27.000Z",
+    "recoveryLevel": "Purgeable"
+  }
+}
