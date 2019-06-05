@@ -1,8 +1,8 @@
 
-const {getAuthorizedAzureClient} = require('../models/azure-client')
+const {getAuthorizedAzureClient} = require('../models/hsm-client')
 
-const loadKeys = function(vaultUri) {
-  return Promise.resolve([])
+const loadKeys = function(hsmClient, vaultUri) {
+  return hsmClient.loadKeysWithClient(vaultUri)
 }
 
 module.exports = {

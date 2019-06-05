@@ -1,6 +1,8 @@
 
+const {testOps, testKeys} = require('./test-data')
+
 const loadKeysWithClient = function(vaultUri) {
-  return Promise.resolve([]) // TODO:
+  return Promise.resolve(testKeys)
 }
 
 const signWithClient = function(vaultUri, key, algo) {
