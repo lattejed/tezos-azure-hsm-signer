@@ -4,7 +4,13 @@ const assert = require('assert')
 const express = require('express')
 const bodyParser = require('body-parser')
 const http = require('http')
-const client = require('../models/azure-client')
+const client = require('./models/azure-client')
+
+const {loadKeys} = require('./controllers/load-keys')
+const {getAuthorizedKeys} = require('./controllers/get-authorized-keys')
+const {getPubKey} = require('./controllers/get-pubkey')
+const {signMessage} = require('./controllers/sign-message')
+const {handleError} = require('./controllers/handle-error')
 
 const argv = require('yargs')
 	.usage('Usage: $0 [options]')
@@ -27,12 +33,17 @@ const MAGIC_BYTES = argv.magicBytes
 const app = express()
 const server = http.createServer(app)
 
-const cachedKeys = {}
+let cachedKeys = {}
 
 app.use(bodyParser.json({strict: false}))
 app.get('/authorized_keys', getAuthorizedKeys())
 app.get('/keys/:tzKeyHash', getPubKey(cachedKeys))
 app.post('/keys/:tzKeyHash', signMessage(cachedKeys, client, KEYVAULT_URI, CHECK_HIGH_WATERMARK, MAGIC_BYTES))
+
+app.get('/listen', (req, res, next) => {
+		console.log(req.hostname)
+})
+
 app.use(handleError())
 
 server.on('listening', () => {

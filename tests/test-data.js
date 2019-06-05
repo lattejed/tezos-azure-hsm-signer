@@ -3,6 +3,7 @@
 module.exports = {
 
 	testKeys: {
+
 		"P256": {
 			"attributes": {
 				"created": "2019-05-30T10:02:14+00:00",
@@ -21,6 +22,7 @@ module.exports = {
 			"publicKeyTZ": "p2pk66FrD7CenApRiHgnGtr86DEzXjjzqMbLvTVX757mZG8fArSRR5e",
 			"signAlgo": "ES256"
 		},
+		
 		"P256K": {
 		  "attributes": {
 		    "created": "2019-05-22T08:37:35+00:00",

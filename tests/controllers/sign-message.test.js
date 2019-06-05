@@ -34,7 +34,7 @@ const response = {
 }
 
 const next = function(error) {
-  return error
+  throw error
 }
 /*
 describe('sign-message', () => {

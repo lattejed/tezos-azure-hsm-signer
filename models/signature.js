@@ -42,13 +42,15 @@ const createSignature = function(key, msg, hsmSignerFunc) {
     else if (key.algo === AZ.SIGN_ALGO_P256K) {
 
       /*
-       * Enforce small S value
+       * Enforce small S values
+       * https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#Low_S_values_in_signatures
        */
 
       let pre = Buffer.from(TZ.PRE_SIG_P256K, 'hex')
       let R = raw.slice(0, 32).toString('hex')
       let S = raw.slice(32).toString('hex')
       var s = BigInt('0x' + S)
+
       if (s > BigInt(K.CURVE_HALF_ORDER)) {
         s = BigInt(K.CURVE_ORDER) - s
         let hs = s.toString(16).padStart(64, '0')
@@ -58,6 +60,7 @@ const createSignature = function(key, msg, hsmSignerFunc) {
       else {
         var sig = raw
       }
+
       return Promise.resolve(bs58check.encode(Buffer.concat([pre, sig])))
     }
   })
