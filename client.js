@@ -2,7 +2,7 @@
 
 const readline = require('readline')
 const stdin = process.stdin
-const {clientListen, clientSend} = require('./models/message')
+const {clientListen, clientSend} = require('./models/msg-client')
 
 readline.emitKeypressEvents(stdin)
 if (stdin.isTTY) {
