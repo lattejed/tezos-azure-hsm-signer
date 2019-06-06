@@ -1,7 +1,7 @@
 
 const assert = require('assert')
 const {signMessage} = require('../../controllers/sign-message')
-const {testOps, testKeys} = require('../test-data')
+const {op, tzKey, hsmKeys} = require('../data/all')
 const {req, res, next} = require('../express-mock')
 const client = require('../client-mock')
 
@@ -11,14 +11,14 @@ describe('controllers/sign-message', () => {
 
     it('Should sign a dummy block', (done) => {
 
-      let hash = testKeys.P256.publicKeyTZH
-      signMessage(testKeys, client, client)(req(hash, '01'), res((json) => {
+      let tz = tzKey.p256.pkh
+      signMessage(hsmKeys, client, client)(req(tz, op.block), res((json) => {
         assert(json.signature === testKeys.P256.signedZeroHash, `Signature should be ${testKeys.P256.signedZeroHash}`)
         done()
-      }), next())
+      }), next(done))
 
     })
-
+    /*
     it('Should sign a dummy endorsement', (done) => {
 
       let hash = testKeys.P256.publicKeyTZH
@@ -38,7 +38,7 @@ describe('controllers/sign-message', () => {
       }), next())
 
     })
-
+    */
   })
 
 })

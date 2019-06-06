@@ -1,8 +1,8 @@
 
-const {testOps, testKeys} = require('./test-data')
+const {hsmKeys} = require('./data/all')
 
 const loadKeysWithClient = function(vaultUri) {
-  return Promise.resolve(testKeys)
+  return Promise.resolve(hsmKeys)
 }
 
 const signWithClient = function(vaultUri, key, algo) {

@@ -1,0 +1,7 @@
+{
+  "kid": "https://keyvaulttest-keyvault.vault.azure.net/keys/KeyVaultTest-SignerKeyP256K/5469ae1a139240089866cb9b88c9024e",
+  "uncompressed": "048e925761ff30da4bbcd8ce0adb37a5617f1681341f534f7d093ddcf2ed3d100b701fbe6061d92793866df865cd7ed144304021c0cf55639a42a7469decb34b90",
+  "compressed": "028e925761ff30da4bbcd8ce0adb37a5617f1681341f534f7d093ddcf2ed3d100b",
+  "pk": "sppk7aPRf3mXkUSxz3CWzH8SEBP2ASV1PbM3yb7WqvAbbZUqW7EokEu",
+  "pkh": "tz2GZguWayWgWFVaQAZMvbfTbeyruHWDDvR6"
+}
