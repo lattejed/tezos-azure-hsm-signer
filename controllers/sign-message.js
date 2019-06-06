@@ -13,7 +13,7 @@ const sign = function(key, op, signerFunc, res, next) {
 const signMessage = function(keys, hsmClient, msgClient, vaultUri, watermark, magicBytes) {
   return function(req, res, next) {
     let tz = req.params.tzKeyHash
-    let key = keys[tz]
+    let key = keys()[tz]
     if (!key) {
   		return next(new Error(`No public key found for ${tz}`))
   	}

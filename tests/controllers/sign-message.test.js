@@ -5,6 +5,8 @@ const {op, tzKey, keys} = require('../data/all')
 const {req, res, next} = require('../express-mock')
 const client = require('../client-mock')
 
+const _keys = () => { return keys }
+
 describe('controllers/sign-message', () => {
 
   describe('signMessage', () => {
@@ -14,7 +16,7 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy block', (done) => {
 
         let tz = tzKey.p256.pkh
-        signMessage(keys, client, client)(req(tz, op.block), res((json) => {
+        signMessage(_keys, client, client)(req(tz, op.block), res((json) => {
           assert(json.signature, 'No signature')
           done()
         }), next(done))
@@ -23,7 +25,7 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy endorsement', (done) => {
 
         let tz = tzKey.p256.pkh
-        signMessage(keys, client, client)(req(tz, op.endorsement), res((json) => {
+        signMessage(_keys, client, client)(req(tz, op.endorsement), res((json) => {
           assert(json.signature, 'No signature')
           done()
         }), next())
@@ -32,7 +34,7 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy generic transaction', (done) => {
 
         let tz = tzKey.p256.pkh
-        signMessage(keys, client, client)(req(tz, op.generic), res((json) => {
+        signMessage(_keys, client, client)(req(tz, op.generic), res((json) => {
           assert(json.signature, 'No signature')
           done()
         }), next())
@@ -45,7 +47,7 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy block', (done) => {
 
         let tz = tzKey.p256k.pkh
-        signMessage(keys, client, client)(req(tz, op.block), res((json) => {
+        signMessage(_keys, client, client)(req(tz, op.block), res((json) => {
           assert(json.signature, 'No signature')
           done()
         }), next(done))
@@ -54,7 +56,7 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy endorsement', (done) => {
 
         let tz = tzKey.p256k.pkh
-        signMessage(keys, client, client)(req(tz, op.endorsement), res((json) => {
+        signMessage(_keys, client, client)(req(tz, op.endorsement), res((json) => {
           assert(json.signature, 'No signature')
           done()
         }), next())
@@ -63,7 +65,7 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy generic transaction', (done) => {
 
         let tz = tzKey.p256k.pkh
-        signMessage(keys, client, client)(req(tz, op.generic), res((json) => {
+        signMessage(_keys, client, client)(req(tz, op.generic), res((json) => {
           assert(json.signature, 'No signature')
           done()
         }), next())

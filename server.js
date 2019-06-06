@@ -35,7 +35,10 @@ const MAGIC_BYTES = argv.magicBytes
 const app = express()
 const server = http.createServer(app)
 
-let cachedKeys = {}
+let _cachedKeys = {}
+const cachedKeys = function() {
+  return _cachedKeys
+}
 
 app.use(bodyParser.json({strict: false}))
 app.get('/authorized_keys', getAuthorizedKeys())
@@ -47,8 +50,8 @@ server.on('listening', () => {
 	console.info(`Server listening at http://${ADDRESS}:${PORT}`)
   console.info(`Loading keys...`)
   loadKeys(hsmClient, KEYVAULT_URI).then((keys) => {
-    cachedKeys = keys
-    console.info(`Loaded keys OK`)
+    _cachedKeys = keys
+		console.info(`Loaded keys:\n${JSON.stringify(keys, null, 2)}`)
   }).catch((error) => {
     console.error(`Unable to load keys, exiting`)
     console.error(error)
