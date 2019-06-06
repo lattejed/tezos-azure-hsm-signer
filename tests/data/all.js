@@ -1,5 +1,6 @@
 
-module.exports = {
+
+let data = {
 
 	hsmKeys: [
 		require('./hsm_P256'),
@@ -28,3 +29,10 @@ module.exports = {
 	}
 
 }
+
+data.hsmKeys.forEach((key) => {
+	key.key.x = Buffer.from(key.key.x, 'base64')
+	key.key.y = Buffer.from(key.key.y, 'base64')
+})
+
+module.exports = data
