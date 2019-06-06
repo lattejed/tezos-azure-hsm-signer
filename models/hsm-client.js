@@ -16,41 +16,41 @@ const getClient = function(vaultUri) {
 
 const loadKeysWithClient = function(vaultUri) {
 
-	return getClient(vaultUri).then((client) => {
+  return getClient(vaultUri).then((client) => {
 
     // Get all keys in vault
 
     return client.getKeys(vaultUri).then((keyObjs) => {
 
-  		let ps = keyObjs.map(function(keyObj) {
-  			let name = utils.getKeyName(keyObj)
-  			return client.getKeyVersions(vaultUri, name)
-  		});
-  		return Promise.all(ps)
+      let ps = keyObjs.map(function(keyObj) {
+        let name = utils.getKeyName(keyObj)
+        return client.getKeyVersions(vaultUri, name)
+      });
+      return Promise.all(ps)
 
     // Get active key version
 
-  	}).then((allKeyObjs) => {
+    }).then((allKeyObjs) => {
 
-  		return Promise.resolve(utils.getActiveKeyVersion(allKeyObjs))
+      return Promise.resolve(utils.getActiveKeyVersion(allKeyObjs))
 
     // Get full keys
 
-  	}).then((activeKeyObjs) => {
+    }).then((activeKeyObjs) => {
 
-  		let ps = activeKeyObjs.map((keyObj) => {
-  			let name = utils.getKeyName(keyObj)
-  			let version = utils.getKeyVersion(keyObj)
-  			return client.getKey(vaultUri, name, version)
-  		})
-  		return Promise.all(ps)
+      let ps = activeKeyObjs.map((keyObj) => {
+        let name = utils.getKeyName(keyObj)
+        let version = utils.getKeyVersion(keyObj)
+        return client.getKey(vaultUri, name, version)
+      })
+      return Promise.all(ps)
 
     // Filter out invalid key types
 
-  	}).then((keyObjs) => {
+    }).then((keyObjs) => {
 
       return Promise.resolve(utils.filterValidKeyTypes(keyObjs))
-  	})
+    })
 
   })
 

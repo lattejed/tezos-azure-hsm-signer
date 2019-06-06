@@ -16,16 +16,16 @@ const {signMessage} = require('./controllers/sign-message')
 const {handleError} = require('./controllers/handle-error')
 
 const argv = require('yargs')
-	.usage('Usage: $0 [options]')
-	.alias('M', 'magic-bytes')
-	.alias('W', 'check-high-watermark')
-	.alias('a', 'address')
-	.alias('p', 'port')
-	.boolean(['check-high-watermark'])
-	.default({M: '0x01,0x02', W: true, a: '127.0.0.1', p: 6732})
-	.help('h')
+  .usage('Usage: $0 [options]')
+  .alias('M', 'magic-bytes')
+  .alias('W', 'check-high-watermark')
+  .alias('a', 'address')
+  .alias('p', 'port')
+  .boolean(['check-high-watermark'])
+  .default({M: '0x01,0x02', W: true, a: '127.0.0.1', p: 6732})
+  .help('h')
   .alias('h', 'help')
-	.argv
+  .argv
 
 const KEYVAULT_URI = process.env.AZURE_KEYVAULT_URI
 const ADDRESS = argv.address
@@ -49,11 +49,11 @@ app.post('/keys/:tzKeyHash', signMessage(cachedKeys, hsmClient, msgClient, KEYVA
 app.use(handleError())
 
 server.on('listening', () => {
-	console.info(`Server listening at http://${ADDRESS}:${PORT}`)
+  console.info(`Server listening at http://${ADDRESS}:${PORT}`)
   console.info(`Loading keys...`)
   loadKeys(hsmClient, KEYVAULT_URI).then((keys) => {
     _cachedKeys = keys
-		console.info(`Loaded keys:\n${JSON.stringify(keys, null, 2)}`)
+    console.info(`Loaded keys:\n${JSON.stringify(keys, null, 2)}`)
   }).catch((error) => {
     console.error(`Unable to load keys, exiting`)
     console.error(error)

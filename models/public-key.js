@@ -14,12 +14,12 @@ const getPublicKeyFromXY = function(x, y, crv, fmt) {
    * 0x04 + X + Y
    */
 
-	if (fmt === PK.UNCOMPRESSED) {
+  if (fmt === PK.UNCOMPRESSED) {
 
-		let pre = Buffer.from('04', 'hex')
-		return Buffer.concat([pre, x, y])
+    let pre = Buffer.from('04', 'hex')
+    return Buffer.concat([pre, x, y])
 
-	}
+  }
 
   /*
    * Compressed EC Public Keys are of the format:
@@ -29,13 +29,13 @@ const getPublicKeyFromXY = function(x, y, crv, fmt) {
    *
    */
 
-	else if (fmt === PK.COMPRESSED) {
+  else if (fmt === PK.COMPRESSED) {
 
-		let biy = BigInt('0x' + y.toString('hex'))
-		let pre = Buffer.from(biy % BigInt(2) == 0 ? '02' : '03', 'hex')
-		return Buffer.concat([pre, x])
+    let biy = BigInt('0x' + y.toString('hex'))
+    let pre = Buffer.from(biy % BigInt(2) == 0 ? '02' : '03', 'hex')
+    return Buffer.concat([pre, x])
 
-	}
+  }
 
   /*
    * Tezos public keys are of the format
@@ -43,21 +43,21 @@ const getPublicKeyFromXY = function(x, y, crv, fmt) {
    * base58 encoded with a checksum
    */
 
-	else if (fmt === PK.TEZOS) {
+  else if (fmt === PK.TEZOS) {
 
-		let pk = getPublicKeyFromXY(x, y, crv, PK.COMPRESSED)
-		if (crv === AZ.CRV_P256) {
-			var pre = Buffer.from(TZ.PRE_PK_P256, 'hex')
-		}
-		else if (crv === AZ.CRV_P256K) {
-			var pre = Buffer.from(TZ.PRE_PK_P256K, 'hex')
-		}
-		else {
-			assert(false, `Invalid key curve ${crv}`)
-		}
+    let pk = getPublicKeyFromXY(x, y, crv, PK.COMPRESSED)
+    if (crv === AZ.CRV_P256) {
+      var pre = Buffer.from(TZ.PRE_PK_P256, 'hex')
+    }
+    else if (crv === AZ.CRV_P256K) {
+      var pre = Buffer.from(TZ.PRE_PK_P256K, 'hex')
+    }
+    else {
+      assert(false, `Invalid key curve ${crv}`)
+    }
     return bs58check.encode(Buffer.concat([pre, pk]))
 
-	}
+  }
 
   /*
    * Tezos public key hashes are of the format
@@ -65,30 +65,30 @@ const getPublicKeyFromXY = function(x, y, crv, fmt) {
    * base58 encoded with a checksum
    */
 
-	else if (fmt === PK.TEZOS_HASH) {
+  else if (fmt === PK.TEZOS_HASH) {
 
     let pk = getPublicKeyFromXY(x, y, crv, PK.COMPRESSED)
 
-		if (crv === AZ.CRV_P256) {
-			var pre = Buffer.from(TZ.PRE_PKH_P256, 'hex')
-		}
-		else if (crv === AZ.CRV_P256K) {
-			var pre = Buffer.from(TZ.PRE_PKH_P256K, 'hex')
-		}
-		else {
-			assert(false, `Invalid key curve ${crv}`)
-		}
+    if (crv === AZ.CRV_P256) {
+      var pre = Buffer.from(TZ.PRE_PKH_P256, 'hex')
+    }
+    else if (crv === AZ.CRV_P256K) {
+      var pre = Buffer.from(TZ.PRE_PKH_P256K, 'hex')
+    }
+    else {
+      assert(false, `Invalid key curve ${crv}`)
+    }
 
 
-		let h = blake2.createHash('blake2b', {digestLength: 20}).update(pk)
-		let pkh = Buffer.concat([pre, h.digest()])
-		return bs58check.encode(pkh)
+    let h = blake2.createHash('blake2b', {digestLength: 20}).update(pk)
+    let pkh = Buffer.concat([pre, h.digest()])
+    return bs58check.encode(pkh)
 
-	}
+  }
 
-	else {
-		assert(false, `Invalid public key format ${fmt}`)
-	}
+  else {
+    assert(false, `Invalid public key format ${fmt}`)
+  }
 
 }
 

@@ -12,8 +12,8 @@ const signMessage = function(keys, hsmClient, msgClient, vaultUri, wmFile, water
     let tz = req.params.tzKeyHash
     let key = keys()[tz]
     if (!key) {
-  		return next(new Error(`No public key found for ${tz}`))
-  	}
+      return next(new Error(`No public key found for ${tz}`))
+    }
     let op = req.body
     let wm = watermark && (operation.isBlock(op) || operation.isEndorsement(op))
     let signerFunc = hsmClient.signWithClient(vaultUri, key)
