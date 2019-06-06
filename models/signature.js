@@ -39,7 +39,7 @@ const createSignature = function(key, op, hsmSignerFunc) {
     if (key.signAlgo === AZ.SIGN_ALGO_P256) {
 
       let pre = Buffer.from(TZ.PRE_SIG_P256, 'hex')
-      let sig = Buffer.from(raw, 'hex')
+      let sig = raw
       return Promise.resolve(bs58check.encode(Buffer.concat([pre, sig])))
     }
 
