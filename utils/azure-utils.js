@@ -1,7 +1,6 @@
 
 const AZ = require('../constants/azure-constants')
 
-
 const getKeyName = function(keyObj) {
 	let kid = keyObj.kid || keyObj.key.kid
   let comps = kid.split('/')
