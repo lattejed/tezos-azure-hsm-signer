@@ -4,7 +4,7 @@ const getPubKey = function(keys) {
     let tz = req.params.tzKeyHash
     let key = keys[tz]
     if (key) {
-      res.json({public_key: pk.publicKey})
+      res.json({public_key: key.pk})
     } else {
       next(new Error(`No public key found for ${tz}`))
     }

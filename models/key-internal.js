@@ -13,8 +13,6 @@ const getKeyFromHSMKey = function(key) {
 
   let k = {
     kid: kid,
-    uncompressed: getPublicKeyFromXY(x, y, crv, PK.UNCOMPRESSED),
-    compressed: getPublicKeyFromXY(x, y, crv, PK.COMPRESSED),
     pk: getPublicKeyFromXY(x, y, crv, PK.TEZOS),
     pkh: getPublicKeyFromXY(x, y, crv, PK.TEZOS_HASH)
   }
@@ -32,6 +30,15 @@ const getKeyFromHSMKey = function(key) {
   return k
 }
 
+const mapKeysFromHSMKeys = function(hsmKeys) {
+  let keys = hsmKeys.map(getKeyFromHSMKey)
+  return keys.reduce((acc, val) => {
+    acc[val.pkh] = val
+    return acc
+  }, {})
+}
+
 module.exports = {
-  getKeyFromHSMKey
+  getKeyFromHSMKey,
+  mapKeysFromHSMKeys
 }

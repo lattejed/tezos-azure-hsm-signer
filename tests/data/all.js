@@ -1,4 +1,5 @@
 
+const {mapKeysFromHSMKeys} = require('../../models/key-internal')
 
 let data = {
 
@@ -34,5 +35,7 @@ data.hsmKeys.forEach((key) => {
 	key.key.x = Buffer.from(key.key.x, 'base64')
 	key.key.y = Buffer.from(key.key.y, 'base64')
 })
+
+data.keys = mapKeysFromHSMKeys(data.hsmKeys)
 
 module.exports = data
