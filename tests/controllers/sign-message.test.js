@@ -1,9 +1,14 @@
 
 const assert = require('assert')
+const fs = require('fs-extra')
+const path = require('path')
 const {signMessage} = require('../../controllers/sign-message')
 const {op, tzKey, keys} = require('../data/all')
 const {req, res, next} = require('../express-mock')
 const client = require('../client-mock')
+
+const TEST_DIR = path.join(__dirname, '..', 'tmp')
+const TEST_FILE = path.join(TEST_DIR, 'test-watermarks')
 
 const _keys = () => { return keys }
 
@@ -18,8 +23,9 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy block', (done) => {
 
         let tz = tzKey.p256.pkh
-        signMessage(_keys, client, client, null, null, true, allMagic)(req(tz, op.block), res((json) => {
+        signMessage(_keys, client, client, null, TEST_FILE, true, allMagic)(req(tz, op.block), res((json) => {
           assert(json.signature, 'No signature')
+          fs.removeSync(TEST_DIR)
           done()
         }), next(done))
       })
@@ -27,8 +33,9 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy endorsement', (done) => {
 
         let tz = tzKey.p256.pkh
-        signMessage(_keys, client, client, null, null, true, allMagic)(req(tz, op.endorsement), res((json) => {
+        signMessage(_keys, client, client, null, TEST_FILE, true, allMagic)(req(tz, op.endorsement), res((json) => {
           assert(json.signature, 'No signature')
+          fs.removeSync(TEST_DIR)
           done()
         }), next(done))
       })
@@ -36,8 +43,9 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy generic transaction', (done) => {
 
         let tz = tzKey.p256.pkh
-        signMessage(_keys, client, client, null, null, true, allMagic)(req(tz, op.generic), res((json) => {
+        signMessage(_keys, client, client, null, TEST_FILE, true, allMagic)(req(tz, op.generic), res((json) => {
           assert(json.signature, 'No signature')
+          fs.removeSync(TEST_DIR)
           done()
         }), next(done))
       })
