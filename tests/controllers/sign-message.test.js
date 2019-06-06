@@ -7,6 +7,8 @@ const client = require('../client-mock')
 
 const _keys = () => { return keys }
 
+let allMagic = ['0x01', '0x02', '0x03']
+
 describe('controllers/sign-message', () => {
 
   describe('signMessage', () => {
@@ -16,7 +18,7 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy block', (done) => {
 
         let tz = tzKey.p256.pkh
-        signMessage(_keys, client, client)(req(tz, op.block), res((json) => {
+        signMessage(_keys, client, client, null, null, true, allMagic)(req(tz, op.block), res((json) => {
           assert(json.signature, 'No signature')
           done()
         }), next(done))
@@ -25,54 +27,22 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy endorsement', (done) => {
 
         let tz = tzKey.p256.pkh
-        signMessage(_keys, client, client)(req(tz, op.endorsement), res((json) => {
-          assert(json.signature, 'No signature')
-          done()
-        }), next())
-      })
-
-      it('Should sign a dummy generic transaction', (done) => {
-
-        let tz = tzKey.p256.pkh
-        signMessage(_keys, client, client)(req(tz, op.generic), res((json) => {
-          assert(json.signature, 'No signature')
-          done()
-        }), next())
-      })
-
-    })
-
-    describe('P256K', () => {
-
-      it('Should sign a dummy block', (done) => {
-
-        let tz = tzKey.p256k.pkh
-        signMessage(_keys, client, client)(req(tz, op.block), res((json) => {
+        signMessage(_keys, client, client, null, null, true, allMagic)(req(tz, op.endorsement), res((json) => {
           assert(json.signature, 'No signature')
           done()
         }), next(done))
       })
 
-      it('Should sign a dummy endorsement', (done) => {
-
-        let tz = tzKey.p256k.pkh
-        signMessage(_keys, client, client)(req(tz, op.endorsement), res((json) => {
-          assert(json.signature, 'No signature')
-          done()
-        }), next())
-      })
-
       it('Should sign a dummy generic transaction', (done) => {
 
-        let tz = tzKey.p256k.pkh
-        signMessage(_keys, client, client)(req(tz, op.generic), res((json) => {
+        let tz = tzKey.p256.pkh
+        signMessage(_keys, client, client, null, null, true, allMagic)(req(tz, op.generic), res((json) => {
           assert(json.signature, 'No signature')
           done()
-        }), next())
+        }), next(done))
       })
 
     })
-
 
   })
 

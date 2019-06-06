@@ -1,5 +1,7 @@
 
 const {createSignature} = require('../models/signature')
+const operation = require('../models/operation')
+
 const TZ = require('../constants/tezos-constants')
 
 const sign = function(key, op, signerFunc, res, next) {
@@ -10,7 +12,7 @@ const sign = function(key, op, signerFunc, res, next) {
   })
 }
 
-const signMessage = function(keys, hsmClient, msgClient, vaultUri, watermark, magicBytes) {
+const signMessage = function(keys, hsmClient, msgClient, vaultUri, wmFile, watermark, magicBytes) {
   return function(req, res, next) {
     let tz = req.params.tzKeyHash
     let key = keys()[tz]
@@ -18,12 +20,23 @@ const signMessage = function(keys, hsmClient, msgClient, vaultUri, watermark, ma
   		return next(new Error(`No public key found for ${tz}`))
   	}
     let op = req.body
-    let magic = op.slice(0, 2)
     let signerFunc = hsmClient.signWithClient(vaultUri, key)
-    if (magic === TZ.MAGIC_BLOCK || magic === TZ.MAGIC_ENDORSE) {
+
+    // check high watermark if necessary
+
+    if (watermark && (operation.isBlock(op) || operation.isEndorsement(op))) {
+      //return next(new Error(`Watermark check failed for ${op}`))
+    }
+
+    // Check if we allow this op automatically
+
+    if (operation.allowedOp(op, magicBytes)) {
       sign(key, op, signerFunc, res, next)
     }
-    else if (magic === TZ.MAGIC_GENERIC) {
+
+    // Or request confirmation via client
+
+    else {
       msgClient.serverListen((resp) => {
         if (resp === op) {
           sign(key, op, signerFunc, res, next)
@@ -31,9 +44,7 @@ const signMessage = function(keys, hsmClient, msgClient, vaultUri, watermark, ma
       })
       msgClient.serverSend(op)
     }
-    else {
-      return next(new Error(`Invalid magic bytes for op ${magic}`))
-    }
+
   }
 }
 

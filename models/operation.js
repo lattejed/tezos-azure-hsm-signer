@@ -2,16 +2,32 @@
 const bs58check = require('bs58check')
 const TZ = require('../constants/tezos-constants')
 
+const magic = function(op) {
+  return op.slice(0, 2)
+}
+
 const isBlock = function(op) {
-  return op.slice(0, 2) === TZ.MAGIC_BLOCK
+  return magic(op) === TZ.MAGIC_BLOCK
 }
 
 const isEndorsement = function(op) {
-  return op.slice(0, 2) === TZ.MAGIC_ENDORSE
+  return magic(op) === TZ.MAGIC_ENDORSE
 }
 
 const isGeneric = function(op) {
-  return op.slice(0, 2) === TZ.MAGIC_GENERIC
+  return magic(op) === TZ.MAGIC_GENERIC
+}
+
+const allowedOp = function(op, allowedMagic) {
+  return scrubMagic(allowedMagic).indexOf(magic(op)) !== -1
+}
+
+const scrubMagic = function(magic) {
+  return magic.filter((m) => {
+    return /^0x[a-fA-F0-9]{2}$/.test(m)
+  }).map((m) => {
+    return m.replace(/^0x/, '')
+  })
 }
 
 const blockLevel = function(op) {
@@ -30,9 +46,11 @@ const chainId = function(op) {
 }
 
 module.exports = {
+  magic,
   isBlock,
   isEndorsement,
   isGeneric,
+  allowedOp,
   blockLevel,
   chainId
 }
