@@ -10,6 +10,8 @@ module.exports = {
   PRE_SIG_P256: '36f02c34',
   PRE_SIG_P256K: '0d7365133f',
 
+  PRE_CHAIN_ID: '575200',
+
   MAGIC_BLOCK: '01',
   MAGIC_ENDORSE: '02',
   MAGIC_GENERIC: '03'
