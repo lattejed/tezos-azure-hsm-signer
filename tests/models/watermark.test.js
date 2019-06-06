@@ -46,6 +46,20 @@ describe('models/watermark', () => {
       fs.removeSync(TEST_DIR)
     })
 
+    it('Can sign endorsement following block', () => {
+      fs.removeSync(TEST_DIR)
+
+      let tz = tzKey.p256.pkh
+
+      assert(canSign(TEST_FILE, tz, op.block), 'Should be able to sign')
+      setWatermark(TEST_FILE, tz, op.block)
+
+      setWatermark(TEST_FILE, tz, op.endorsement)
+      assert(canSign(TEST_FILE, tz, op.endorsement) === false, 'Should not be able to sign')
+
+      fs.removeSync(TEST_DIR)
+    })
+
   })
 
 })
