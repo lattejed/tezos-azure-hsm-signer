@@ -8,22 +8,23 @@ This has been tested to run on Ubuntu 18.04 and has a `systemd` startup script t
 
 ## Complete guide
 
-A complete guide for securely setting up a signer on Azure is available as part of the free e-book *Learn you a Tezos for Great Prosperity* here [learnyouatezos.com/fillmein](http://learnyouatezos.com/fillmein)
+A comprehensive guide for securely setting up a signer on Azure is available as part of the free e-book *Learn you a Tezos for Great Prosperity* here [learnyouatezos.com/fillmein](http://learnyouatezos.com/fillmein)
 
 ## WARNINGS
 
 ### The following steps are *required*
 
-You *must* set the firewall on the Azure VM to only allow access from your baker's IP. Otherwise, you signer could be used by anyone to sign all operation types you've whitelisted.
+You *must* set the firewall on the Azure VM to only allow access from your baker's IP address. Otherwise, your signer could be used by anyone to sign all operation types you've whitelisted.
 
 ### The following steps are *strongly recommended*
 
-1. Review best practices for generating, securing and backing up private keys
+1. Review best practices for generating, securing and backing up private keys outside of Azure
 2. Review best practices for securing the VM this will run on
 3. Review best practices for securing your Key Vault
-4. Test your signer setup on the Tezos `alphanet` using a test key before moving to `mainnet`
-5. Test your new `mainnet` `tz...` address by sending a small amount of XTZ *to and from* that address
-6. Test your key backup and restoration procedure and repeat step \#5
+4. Review best practices for importing keys into Key Vault
+5. Test your signer setup on the Tezos `alphanet` using a test key before moving to `mainnet`
+6. Test your new `mainnet` `tz...` address by sending a small amount of XTZ *to and from* that address
+7. Test your key backup and restoration procedure and repeat step \#6
 
 ## Prerequisites
 
@@ -91,9 +92,9 @@ tezos-client <verify TODO:>
 2. Whitelisting magic bytes for operations
 3. Local client support for confirming non-whitelisted operations
 
-## Non-features
+## Security non-features
 
-1. This signer is intended for small and medium-sized bakers. It *does not* support high availability setups where more than one signer or one baker may be running simultaneously. In particular, race conditions are not protected against when verifying an operation's high watermark.
+1. This signer is intended for small and medium-sized bakers. It *does not* support high availability setups where more than one signer or baker may be running simultaneously. In particular, race conditions are not protected against when verifying an operation's high watermark.
 
 ## Curve support
 
@@ -103,7 +104,7 @@ This signer supports both Secp256k1 and NIST P256 keys (tz2 and tz3 public key h
 
 Azure Key Vault *does not* support deterministic signatures. That means signing operations will never produce the same signature when repeated. The Tezos network *does not* require deterministic signatures, although it produces them when using a node to sign operations.
 
-## Bring your own private key
+## Bring your own private key!
 
 It is *strongly recommended* that you generate your keys offline and *import* them using the Azure cli. Azure *does not* support backing up key material apart from encrypted backups (used only for moving keys within the same Azure region).
 
@@ -117,8 +118,8 @@ Azure is currently the only viable choice for a *low cost* HSM signer as it supp
 
 This setup requires both an Azure VM and an HSM-backed Key Vault. The lowest cost VM will work (~$5/month) and a single key will cost ....
 
-## Other projects
+## Related projects
 
 ...
 
-Although this project is not a direct port of any of these previous projects, I would like to thank them for open sourcing their work and making it freely available for review.
+Although this project is not a direct port of any of these projects, I would like to thank the authors for open sourcing their work and making it freely available for review.
