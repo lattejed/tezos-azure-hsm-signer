@@ -14,7 +14,7 @@ A comprehensive guide for securely setting up a signer on Azure is available as 
 
 ### The following steps are *required*
 
-You *must* set the firewall on the Azure VM to only allow access from your baker's IP address. Otherwise, your signer could be used by anyone to sign all operation types you've whitelisted.
+1. You *must* set the firewall on the Azure VM to only allow access from your baker's IP address. Otherwise, your signer could be used by anyone to sign all operation types you've whitelisted.
 
 ### The following steps are *strongly recommended*
 
