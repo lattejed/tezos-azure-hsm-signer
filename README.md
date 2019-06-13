@@ -4,19 +4,29 @@
 
 This is a remote signer for the Tezos network, enabling bakers to run on Azure's inexpensive cloud HSM offering (Azure Key Vault), aiding in a low-cost and secure baker setup.
 
-This has been tested to run on Ubuntu 18.04 and has a `systemd` startup script to run as a service on that OS. It should run on other Linux distributions as well as macOS with minor or no changes.
+This is intended run on an Azure VM running Ubuntu 18.04 and has a `systemd` startup script to run as a service on that OS. An Azure VM with a Service Managed Identity is required.
 
-## Complete guide
+## Read the complete guide
 
-A comprehensive guide for securely setting up a signer on Azure is available as part of the free e-book *Learn you a Tezos for Great Prosperity* here [learnyouatezos.com/fillmein](http://learnyouatezos.com/fillmein)
+A comprehensive guide for securely setting up a signer on Azure is available as part of the free e-book *Learn you a Tezos for Great Prosperity* here [learnyouatezos.com/baking-remote-signer.html](http://learnyouatezos.com/baking-remote-signer.html)
+
+## Why Azure?
+
+Azure is currently the only viable choice for a *low cost* HSM signer as it supports both key import (as does AWS) and billing per key / signing op (as does Google Cloud). In contrast, Google does not support key import / backup and AWS only has dedicated HSMs, which are significantly more expensive to operate.
+
+## Bring your own private key!
+
+It is *strongly recommended* that you generate your keys offline and *import* them using the Azure cli. Azure *does not* support backing up key material apart from encrypted backups (used only for moving keys within the same Azure region).
+
+While key security is a big topic, at the very least your key should be generated on an air-gapped computer, encrypted with a *strong* password and backed up securely. It is *not recommended* to import your key using the same VM that you will run your signer on.
 
 ## WARNINGS
 
-### The following steps are *required*
+### The following steps are *REQUIRED*
 
 1. You *must* set the firewall on the Azure VM to only allow access from your baker's IP address. Otherwise, your signer could be used by anyone to sign all operation types you've whitelisted.
 
-### The following steps are *strongly recommended*
+### The following steps are *STRONGLY RECOMMENDED*
 
 1. Review best practices for generating, securing and backing up private keys outside of Azure
 2. Review best practices for securing the VM this will run on
@@ -26,13 +36,17 @@ A comprehensive guide for securely setting up a signer on Azure is available as 
 6. Test your new `mainnet` `tz...` address by sending a small amount of XTZ *to and from* that address
 7. Test your key backup and restoration procedure and repeat step \#6
 
+## HTTPS Note
+
+HTTPS is not used as no information is passed between baker and signer that will not be made public. Security is provided by firewalling the singer to only accept requests from your baker's IP address. See WARNINGS.
+
 ## Prerequisites
 
 1. An Azure account with billing enabled
 2. Azure Key Vault premium (for HSM)
 3. An imported private key of type Secp256k1 or NIST P256
-4. An Azure VM running Ubuntu 18.04 with a service managed identitiy?
-5. Node.js (>= 10.0.0) and npm installed
+4. An Azure VM running Ubuntu 18.04 with a Service Managed Identity
+5. Node.js (>= 10.15.3) and npm (>= 6.4.1) installed
 
 ## Usage
 
@@ -43,7 +57,7 @@ npm install
 AZURE_KEYVAULT_URI='https://my-keyvault.vault.azure.net/' node server.js --address=0.0.0.0
 ```
 
-You must supply a valid `AZURE_KEYVAULT_URI` and set required options when starting.
+You must supply a valid `AZURE_KEYVAULT_URI` and set options when starting.
 
 ```
 node server.js --help
@@ -61,7 +75,7 @@ Options:
   -p, --port                                                     [default: 6732]
 ```
 
-The option `--check-high-watermark` is enabled by default and should be explicitly negated `--no-check-high-watermark`, though doing so is not recommended.
+The option `--check-high-watermark` is enabled by default and should be explicitly negated with `--no-check-high-watermark` though doing so is not recommended.
 
 The default address of `127.0.0.1` will not allow external connections. You will need to explicitly set this to `0.0.0.0` or equivalent for public network access (if not using `nginx` or similar).
 
@@ -98,21 +112,11 @@ tezos-client <verify TODO:>
 
 ## Curve support
 
-This signer supports both Secp256k1 and NIST P256 keys (tz2 and tz3 public key hashes) and generates canonical signatures for both. In particular, Secp256k1 signatures are always produced with low S values.
+This signer supports both Secp256k1 and NIST P256 keys (tz2 and tz3 public key hashes) and generates canonical signatures for both. In particular, Secp256k1 signatures are always produced with [low S values](https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#Low_S_values_in_signatures).
 
 ## Deterministic signatures
 
 Azure Key Vault *does not* support deterministic signatures. That means signing operations will never produce the same signature when repeated. The Tezos network *does not* require deterministic signatures, although it produces them when using a node to sign operations.
-
-## Bring your own private key!
-
-It is *strongly recommended* that you generate your keys offline and *import* them using the Azure cli. Azure *does not* support backing up key material apart from encrypted backups (used only for moving keys within the same Azure region).
-
-While key security is a big topic, at the very least your key should be generated on an air-gapped computer, encrypted with a *strong* password and backed up securely. It is *not recommended* to import your key using the same VM that you will run your signer on.
-
-## Why Azure?
-
-Azure is currently the only viable choice for a *low cost* HSM signer as it supports both key import (as does AWS) and billing per key / signing op (as does Google Cloud). In contrast, Google does not support key import / backup and AWS only has dedicated HSMs, which are significantly more expensive to operate.
 
 ## Costs
 
@@ -120,6 +124,7 @@ This setup requires both an Azure VM and an HSM-backed Key Vault. The lowest cos
 
 ## Related projects
 
+Although this project is not a direct port of any of these projects, I would like to thank the authors for open sourcing their work and making it freely available for review.
+
 ...
 
-Although this project is not a direct port of any of these projects, I would like to thank the authors for open sourcing their work and making it freely available for review.
