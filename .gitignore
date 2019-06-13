@@ -86,5 +86,7 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
-  
+
 .DS_Store
+
+tezos-signer.service
