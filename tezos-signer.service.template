@@ -1,0 +1,16 @@
+[Unit]
+Description = Tezos Signer
+Wants = network-online.target
+After = network-online.target
+
+[Service]
+User = deploys
+Group = deploy
+WorkingDirectory = /home/deploy/tezos-azure-hsm-signer
+Environment = NODE_ENV=production
+Environment = AZURE_KEYVAULT_URI=https://<URI>.vault.azure.net/
+ExecStart = /usr/bin/node server.js --address=0.0.0.0
+Restart = on-failure
+
+[Install]
+WantedBy = multi-user.target
