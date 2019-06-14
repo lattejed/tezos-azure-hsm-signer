@@ -43,16 +43,15 @@ stdin.on('keypress', (str, key) => {
 
 try {
   clientListen((op) => {
-    let request = op // TODO:
-    console.info(`Confirm transaction ${request} [Ny]?`)
+    console.info(`Confirm transaction ${op} [Ny]?`)
     const listener = function(str, key) {
       if (key.sequence === 'y') {
         clientSend(op)
-        console.info(`Transaction ${request} confirmed`)
+        console.info(`Transaction ${op} confirmed`)
       }
       else {
         clientSend('')
-        console.info(`Transaction ${request} ignored`)
+        console.info(`Transaction ${op} ignored`)
       }
       stdin.removeListener('keypress', listener)
     }
