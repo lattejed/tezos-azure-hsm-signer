@@ -1,4 +1,4 @@
-# Remote Tezos Signer for Azure Cloud HSM
+# Remote Tezos Signer for Azure Key Vault (HSM backed)
 
 This is a remote signer for the Tezos network, enabling bakers to run on Azure's inexpensive cloud HSM offering (Azure Key Vault), aiding in a low-cost and secure baker setup.
 
