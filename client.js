@@ -3,7 +3,7 @@
 /**
  * Tezos Azure Signer HSM
  *
- * Copyright (c) Matthew Smith
+ * Copyright (c) Matthew Smith <m@lattejed.com>
  * All rights reserved.
  *
  * MIT License

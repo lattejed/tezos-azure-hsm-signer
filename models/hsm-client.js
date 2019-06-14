@@ -1,7 +1,7 @@
 /**
  * Tezos Azure Signer HSM
  *
- * Copyright (c) Matthew Smith
+ * Copyright (c) Matthew Smith <m@lattejed.com>
  * All rights reserved.
  *
  * MIT License
@@ -22,7 +22,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
- 
+
 const assert = require('assert')
 const msRestAzure = require('ms-rest-azure')
 const KeyVault = require('azure-keyvault')
