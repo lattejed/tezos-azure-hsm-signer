@@ -81,14 +81,14 @@ The default address of `127.0.0.1` will not allow external connections. You will
 
 ```plaintext
 cd tezos-azure-hsm-signer
-npm run test 
+npm run test
 ```
 
 ## Verify operation
 
 From your Azure VM, run the following:
 
-```bash
+```plaintext
 AZURE_KEYVAULT_URI='https://my-keyvault.vault.azure.net/' node server.js --address=0.0.0.0
 ```
 
@@ -96,7 +96,7 @@ Your `tz...` address should be present in the output.
 
 From another terminal session, run the following:
 
-```bash
+```plaintext
 cd tezos-azure-hsm-signer
 node client.js
 ```
