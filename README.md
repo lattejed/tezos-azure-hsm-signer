@@ -57,11 +57,11 @@ AZURE_KEYVAULT_URI='https://my-keyvault.vault.azure.net/' node server.js --addre
 
 You must supply a valid `AZURE_KEYVAULT_URI` and set options when starting.
 
-```
+```plaintext
 node server.js --help
 ```
 
-```
+```plaintext
 Usage: server.js [options]
 
 Options:
@@ -76,6 +76,13 @@ Options:
 The option `--check-high-watermark` is enabled by default and should be explicitly negated with `--no-check-high-watermark` though doing so is not recommended.
 
 The default address of `127.0.0.1` will not allow external connections. You will need to explicitly set this to `0.0.0.0` or equivalent for public network access.
+
+## Run tests
+
+```plaintext
+cd tezos-azure-hsm-signer
+npm run test 
+```
 
 ## Verify operation
 
