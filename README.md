@@ -1,5 +1,3 @@
-# WIP -- DO NOT USE -- DRAFT
-
 # Remote Tezos Signer for Azure Cloud HSM
 
 This is a remote signer for the Tezos network, enabling bakers to run on Azure's inexpensive cloud HSM offering (Azure Key Vault), aiding in a low-cost and secure baker setup.
@@ -12,13 +10,13 @@ A comprehensive guide for securely setting up a signer on Azure is available as 
 
 ## Why Azure?
 
-Azure is currently the only viable choice for a *low cost* HSM signer as it supports both key import (as does AWS) and billing per key / signing op (as does Google Cloud). In contrast, Google does not support key import / backup and AWS only has dedicated HSMs, which are significantly more expensive to operate.
+Azure is currently the only viable choice for a *low cost* HSM signer as it supports both key import (as does AWS) and billing per key / signing op (as does Google Cloud). In contrast, Google does not support key import or backup and AWS only has dedicated HSMs, which are significantly more expensive to operate.
 
 ## Bring your own private key!
 
-It is *strongly recommended* that you generate your keys offline and *import* them using the Azure cli. Azure *does not* support backing up key material apart from encrypted backups (used only for moving keys within the same Azure region).
+It is *strongly recommended* that you generate your keys offline and *import* them using the Azure cli. Azure *does not* support backing up key material apart from encrypted backups (they are used only for moving keys within the same Azure region).
 
-While key security is a big topic, at the very least your key should be generated on an air-gapped computer, encrypted with a *strong* password and backed up securely. It is *not recommended* to import your key using the same VM that you will run your signer on.
+While key security is a big topic, at the very least your key should be generated on an air-gapped computer, encrypted with a *strong* passphrase and backed up securely. It is *not recommended* to import your key using the same VM that you will run your signer on.
 
 ## WARNINGS
 
@@ -32,7 +30,7 @@ While key security is a big topic, at the very least your key should be generate
 2. Review best practices for securing the VM this will run on
 3. Review best practices for securing your Key Vault
 4. Review best practices for importing keys into Key Vault
-5. Test your signer setup on the Tezos `alphanet` using a test key before moving to `mainnet`
+5. Test your signer setup on the Tezos `zeronet` or `alphanet` using a test key before moving to `mainnet`
 6. Test your new `mainnet` `tz...` address by sending a small amount of XTZ *to and from* that address
 7. Test your key backup and restoration procedure and repeat step \#6
 
@@ -77,7 +75,7 @@ Options:
 
 The option `--check-high-watermark` is enabled by default and should be explicitly negated with `--no-check-high-watermark` though doing so is not recommended.
 
-The default address of `127.0.0.1` will not allow external connections. You will need to explicitly set this to `0.0.0.0` or equivalent for public network access (if not using `nginx` or similar).
+The default address of `127.0.0.1` will not allow external connections. You will need to explicitly set this to `0.0.0.0` or equivalent for public network access.
 
 ```
 cp ... /etc/systemd/...
@@ -92,12 +90,42 @@ node client.js
 
 ## Verify operation
 
+From your Azure VM, run the following:
+
+```bash
+AZURE_KEYVAULT_URI='https://my-keyvault.vault.azure.net/' node server.js --address=0.0.0.0
+```
+
+Your `tz...` address should be present in the output.
+
+From another terminal session, run the following:
+
+```bash
+cd tezos-azure-hsm-signer
+node client.js
+```
+
 From your test baker node, run the following:
 
-```
-tezos-client import secret key my_azure_key from http://<your VM ip>:6723/<your tz... address>
-tezos-client sign bytes 0x0100000000 for my_azure_key
+```plaintext
+tezos-client import secret key my_azure_test_key from http://<your VM ip>:6723/<your tz... address>
+tezos-client sign bytes 0x0400000000 for my_azure_test_key
 tezos-client <verify TODO:>
+```
+
+Your client session will prompt you with:
+
+```plaintext
+Waiting for signing request. Ctrl-C to quit.
+Confirm transaction 0x0400000000 [Ny]?
+```
+
+Type `y`. Your `tezos-client` session should return a signature.
+
+To verify that signature, run this from your `tezos-client` session:
+
+```plaintext
+tezos-client check that 0x0400000000 was signed by my_azure_test_key to produce <signature ...>
 ```
 
 ## Security features
@@ -118,13 +146,9 @@ This signer supports both Secp256k1 and NIST P256 keys (tz2 and tz3 public key h
 
 Azure Key Vault *does not* support deterministic signatures. That means signing operations will never produce the same signature when repeated. The Tezos network *does not* require deterministic signatures, although it produces them when using a node to sign operations.
 
-## Costs
-
-This setup requires both an Azure VM and an HSM-backed Key Vault. The lowest cost VM will work (~$5/month) and a single key will cost ....
-
 ## Related projects
 
-Although this project is not a direct port of any of these projects, I would like to thank the authors for open sourcing their work and making it freely available for review.
-
-...
-
+[HSM Signer in Go from Polychain Labs](https://gitlab.com/polychainlabs/tezos-hsm-signer)
+[HSM Signer in Python for AWS from Luke Youngblood](https://github.com/tacoinfra/remote-signer)
+[HSM Signer in Python for Azure by Bo Byrd](https://github.com/tezzigator/azure-tezos-signer)
+[HSM Signer in Python for Google Cloud KMS by Bo Byrd](https://github.com/tezzigator/remote-signer)
