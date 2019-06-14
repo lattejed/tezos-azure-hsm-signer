@@ -56,6 +56,9 @@ const signMessage = function(keys, hsmClient, msgClient, vaultUri, wmFile, water
         if (resp === op) {
           sign()
         }
+        else {
+          return next(new Error(`Operation rejected by user ${op}`))
+        }
       })
       msgClient.serverSend(op)
     }

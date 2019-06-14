@@ -32,7 +32,7 @@ const ADDRESS = argv.address
 const PORT = argv.port
 const CHECK_HIGH_WATERMARK = argv.checkHighWatermark
 const MAGIC_BYTES = argv.magicBytes.split(',')
-const WM_FILE = path.join(os.homedir(), '.tezos-azure-hsm-signer', 'watermarks')
+const WM_FILE = path.join(os.homedir(), '.tezos-azure-hsm-signer', 'watermarks.json')
 
 const app = express()
 const server = http.createServer(app)
