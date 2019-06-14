@@ -125,13 +125,13 @@ tezos-client check that 0x0400000000 was signed by my_azure_test_key to produce 
 
 ## Security features
 
-1. Checks high watermarks, preventing double sign / double bake
+1. Checks high-water marks, preventing double sign / double bake
 2. Whitelisting magic bytes for operations
 3. Local client support for confirming non-whitelisted operations
 
 ## Security non-features
 
-1. This signer is intended for small and medium-sized bakers. It *does not* support high availability setups where more than one signer or baker may be running simultaneously. In particular, race conditions are not protected against when verifying an operation's high watermark.
+1. This signer is intended for small and medium-sized bakers. It *does not* support high availability setups where more than one signer or baker may be running simultaneously. In particular, race conditions are not protected against when verifying an operation's high-water mark.
 
 ## Curve support
 
