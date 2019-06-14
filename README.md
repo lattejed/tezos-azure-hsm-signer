@@ -77,17 +77,6 @@ The option `--check-high-watermark` is enabled by default and should be explicit
 
 The default address of `127.0.0.1` will not allow external connections. You will need to explicitly set this to `0.0.0.0` or equivalent for public network access.
 
-```
-cp ... /etc/systemd/...
-sudo systemctl ...
-... start
-... status
-```
-
-```
-node client.js
-```
-
 ## Verify operation
 
 From your Azure VM, run the following:
