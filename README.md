@@ -106,7 +106,6 @@ From your test baker node, run the following:
 ```plaintext
 tezos-client import secret key my_azure_test_key from http://<your VM ip>:6723/<your tz... address>
 tezos-client sign bytes 0x0400000000 for my_azure_test_key
-tezos-client <verify TODO:>
 ```
 
 Your client session will prompt you with:
