@@ -144,6 +144,6 @@ Azure Key Vault *does not* support deterministic signatures. That means signing 
 ## Related projects
 
 1. [HSM Signer in Go from Polychain Labs](https://gitlab.com/polychainlabs/tezos-hsm-signer)
-2. [HSM Signer in Python for AWS from Luke Youngblood](https://github.com/tacoinfra/remote-signer)
-3. [HSM Signer in Python for Azure by Bo Byrd](https://github.com/tezzigator/azure-tezos-signer)
-4. [HSM Signer in Python for Google Cloud KMS by Bo Byrd](https://github.com/tezzigator/remote-signer)
+2. [HSM Signer in Python for AWS from Taco Infrastructure](https://github.com/tacoinfra/remote-signer)
+3. [HSM Signer in Python for Azure by Tezzigator](https://github.com/tezzigator/azure-tezos-signer)
+4. [HSM Signer in Python for Google Cloud KMS by Tezzigator](https://github.com/tezzigator/remote-signer)
