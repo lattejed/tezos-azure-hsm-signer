@@ -84,6 +84,7 @@ const clientListen = function(dir, callback) {
   else {
     deleteAllMessages(dir) // Flush queue
     poll(dir, [MSG_STATUS.WAITING], (op, status) => {
+      deleteMessage(dir, op)
       callback(op)
     })
   }
