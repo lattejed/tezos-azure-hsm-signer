@@ -1,14 +1,15 @@
 {
   "name": "tezos-azure-signer-nodejs",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "Remote Tezos Signer for Azure Key Vault (HSM backed)",
+  "main": "server.js",
   "scripts": {
     "test": "mocha **/*.test.js",
     "test-watch": "nodemon --ignore 'tests/tmp/' --exec \"npm test\""
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Matthew Smith",
+  "repository": "https://github.com/lattejed/tezos-azure-hsm-signer.git",
+  "license": "MIT",
   "dependencies": {
     "azure-keyvault": "^3.0.4",
     "blake2": "^2.0.1",
