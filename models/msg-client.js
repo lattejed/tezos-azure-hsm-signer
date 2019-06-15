@@ -33,7 +33,6 @@ const MSG_STATUS = {
   REJECT: 'REJECT'
 }
 const POLL_INTVAL = 300
-const TIMEOUT = 30000
 
 const getMessages = function(dir) {
   let file = path.join(dir, MSG_FILE)
@@ -60,16 +59,11 @@ const deleteMessage = function(dir, op) {
 }
 
 const poll = function(dir, statuses, callback) {
-  let timeoutTimer = setTimeout(() => {
-    clearInterval(pollTimer)
-    throw new Error('Message client did not receive response in time')
-  }, TIMEOUT)
   let pollTimer = setInterval(() => {
     let msgs = getMessages(dir)
     for (let op in msgs) {
       if (statuses.indexOf(msgs[op]) > -1) {
         clearInterval(pollTimer)
-        clearTimeout(timeoutTimer)
         callback(op, msgs[op])
         break
       }
