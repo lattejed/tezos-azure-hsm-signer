@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha **/*.test.js",
-    "test-watch": "nodemon --exec \"npm test\""
+    "test-watch": "nodemon --ignore 'tests/tmp/' --exec \"npm test\""
   },
   "author": "",
   "license": "ISC",

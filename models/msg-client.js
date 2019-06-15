@@ -32,7 +32,7 @@ const MSG_STATUS = {
   ACCEPT: 'ACCEPT',
   REJECT: 'REJECT'
 }
-const POLL_INTVAL = 500
+const POLL_INTVAL = 300
 const TIMEOUT = 30000
 
 const getMessages = function(dir) {
@@ -85,6 +85,7 @@ const clientListen = function(dir, callback) {
 
 const serverListen = function(dir, callback) {
   poll(dir, [MSG_STATUS.ACCEPT, MSG_STATUS.REJECT], (op, status) => {
+    deleteMessage(dir, op)
     callback(op, status === MSG_STATUS.ACCEPT)
   })
 }
