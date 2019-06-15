@@ -46,15 +46,15 @@ stdin.on('keypress', (str, key) => {
 
 try {
   clientListen(APP.CONFIG_DIR, (op) => {
-    console.info(`Confirm transaction ${op} [Ny]?`)
+    console.info(`\nConfirm transaction ${op} [Ny]?`)
     const listener = function(str, key) {
       if (key.sequence === 'y') {
         clientSend(APP.CONFIG_DIR, op, true)
-        console.info(`Transaction ${op} confirmed\n`)
+        console.info(`\nTransaction ${op} confirmed\n`)
       }
       else {
         clientSend(APP.CONFIG_DIR, op, false)
-        console.info(`Transaction ${op} ignored\n`)
+        console.info(`\nTransaction ${op} ignored`)
       }
       stdin.removeListener('keypress', listener)
     }
@@ -67,4 +67,4 @@ catch (error) {
   process.exit(1)
 }
 
-console.info(`Waiting for signing request. Ctrl-C to quit.\n`)
+console.info(`Waiting for signing request. Ctrl-C to quit.`)
