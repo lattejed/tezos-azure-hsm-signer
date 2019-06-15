@@ -23,46 +23,83 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-const zmq = require('zeromq')
-const ZMQ = require('../constants/zmq-constants')
 
-const serverOut = zmq.socket('push')
-const serverIn = zmq.socket('pull')
-const clientOut = zmq.socket('push')
-const clientIn = zmq.socket('pull')
+const path = require('path')
+const fs = require('fs-extra')
+const MSG_FILE = 'messages.json'
+const MSG_STATUS = {
+  WAITING: 'WAITING',
+  ACCEPT: 'ACCEPT',
+  REJECT: 'REJECT'
+}
+const POLL_INTVAL = 500
+const TIMEOUT = 30000
 
-const tryToConnect = function(sock, conn) {
-  try {
-    sock.bindSync(conn)
-  } catch (error) {
-    if (error.message !== ZMQ.EADDRINUSE) {
-      throw error
+const getMessages = function(dir) {
+  let file = path.join(dir, MSG_FILE)
+  fs.ensureFileSync(file)
+  let json = fs.readFileSync(file).toString()
+  return json.length === 0 ? {} : JSON.parse(json)
+}
+
+const setMessages = function(dir, msgs) {
+  let file = path.join(dir, MSG_FILE)
+  fs.writeFileSync(file, JSON.stringify(msgs, null, 2))
+}
+
+const setMessage = function(dir, op, status) {
+  let msgs = getMessages(dir)
+  msgs[op] = status
+  setMessages(dir, msgs)
+}
+
+const deleteMessage = function(dir, op) {
+  let msgs = getMessages(dir)
+  delete msgs[op]
+  setMessages(dir, msgs)
+}
+
+const poll = function(dir, statuses, callback) {
+  let timeoutTimer = setTimeout(() => {
+    clearInterval(pollTimer)
+    throw new Error('Message client did not receive response in time')
+  }, TIMEOUT)
+  let pollTimer = setInterval(() => {
+    let msgs = getMessages(dir)
+    for (let op in msgs) {
+      if (statuses.indexOf(msgs[op]) > -1) {
+        clearInterval(pollTimer)
+        clearTimeout(timeoutTimer)
+        callback(op, msgs[op])
+        break
+      }
     }
+  }, POLL_INTVAL)
+}
+
+const clientListen = function(dir, callback) {
+  poll(dir, [MSG_STATUS.WAITING], (op, status) => {
+    callback(op)
+  })
+}
+
+const serverListen = function(dir, callback) {
+  poll(dir, [MSG_STATUS.ACCEPT, MSG_STATUS.REJECT], (op, status) => {
+    callback(op, status === MSG_STATUS.ACCEPT)
+  })
+}
+
+const serverSend = function(dir, op) {
+  setMessage(dir, op, MSG_STATUS.WAITING)
+}
+
+const clientSend = function(dir, op, accept) {
+  if (accept === true) {
+    setMessage(dir, op, MSG_STATUS.ACCEPT)
   }
-}
-
-const serverSend = function(op) {
-  tryToConnect(serverOut, ZMQ.SERVER_CONN)
-  serverOut.send(op)
-}
-
-const serverListen = function(callback) {
-  serverIn.connect(ZMQ.CLIENT_CONN)
-  serverIn.on('message', (op) => {
-    callback(op.toString())
-  })
-}
-
-const clientSend = function(op) {
-  tryToConnect(clientOut, ZMQ.CLIENT_CONN)
-  clientOut.send(op)
-}
-
-const clientListen = function(callback) {
-  clientIn.connect(ZMQ.SERVER_CONN)
-  clientIn.on('message', (op) => {
-    callback(op.toString())
-  })
+  else {
+    setMessage(dir, op, MSG_STATUS.REJECT)
+  }
 }
 
 module.exports = {

@@ -17,8 +17,7 @@
     "express": "^4.17.0",
     "fs-extra": "^8.0.1",
     "ms-rest-azure": "^2.6.0",
-    "yargs": "^13.2.4",
-    "zeromq": "^5.1.0"
+    "yargs": "^13.2.4"
   },
   "devDependencies": {
     "mocha": "^6.1.4"

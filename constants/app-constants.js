@@ -23,10 +23,9 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+const os = require('os')
+const path = require('path')
+
 module.exports = {
-
-  SERVER_CONN: 'tcp://127.0.0.1:19000',
-  CLIENT_CONN: 'tcp://127.0.0.1:19001',
-
-  EADDRINUSE: 'Address already in use'
+  CONFIG_DIR: path.join(os.homedir(), '.tezos-azure-hsm-signer')
 }

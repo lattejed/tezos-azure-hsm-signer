@@ -25,6 +25,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+const APP = require('./constants/app-constants')
+
 const readline = require('readline')
 const stdin = process.stdin
 const {clientListen, clientSend} = require('./models/msg-client')
@@ -46,11 +48,11 @@ try {
     console.info(`Confirm transaction ${op} [Ny]?`)
     const listener = function(str, key) {
       if (key.sequence === 'y') {
-        clientSend(op)
+        clientSend(APP.CONFIG_DIR, op, true)
         console.info(`Transaction ${op} confirmed`)
       }
       else {
-        clientSend('')
+        clientSend(APP.CONFIG_DIR, op, false)
         console.info(`Transaction ${op} ignored`)
       }
       stdin.removeListener('keypress', listener)

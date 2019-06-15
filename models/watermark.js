@@ -23,21 +23,24 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+const path = require('path')
 const fs = require('fs-extra')
 const {magic, blockLevel} = require('./operation')
+const WM_FILE = 'watermarks.json'
 
 const opEqual = function(wm, tz, op) {
   return wm.tz === tz && wm.op === op
 }
 
-const getWatermarks = function(file) {
+const getWatermarks = function(dir) {
+  let file = path.join(dir, WM_FILE)
   fs.ensureFileSync(file)
   let json = fs.readFileSync(file).toString()
   return json.length === 0 ? {} : JSON.parse(json)
 }
 
-const canSign = function(file, tz, op) {
-  let watermarks = getWatermarks(file)
+const canSign = function(dir, tz, op) {
+  let watermarks = getWatermarks(dir)
   let mb = magic(op)
   let wm = watermarks[`${tz}_${mb}`]
   if (!!wm && opEqual(wm, tz, op) && blockLevel(op) <= blockLevel(wm.op)) {
@@ -46,8 +49,9 @@ const canSign = function(file, tz, op) {
   return true
 }
 
-const setWatermark = function(file, tz, op) {
-  let watermarks = getWatermarks(file)
+const setWatermark = function(dir, tz, op) {
+  let file = path.join(dir, WM_FILE)
+  let watermarks = getWatermarks(dir)
   let mb = magic(op)
   watermarks[`${tz}_${mb}`] = {
     tz: tz,

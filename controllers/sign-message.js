@@ -29,7 +29,7 @@ const {canSign, setWatermark} = require('../models/watermark')
 
 const TZ = require('../constants/tezos-constants')
 
-const signMessage = function(keys, hsmClient, msgClient, vaultUri, wmFile, watermark, magicBytes) {
+const signMessage = function(keys, hsmClient, msgClient, vaultUri, configDir, watermark, magicBytes) {
 
   return function(req, res, next) {
 
@@ -50,8 +50,8 @@ const signMessage = function(keys, hsmClient, msgClient, vaultUri, wmFile, water
         // If we are watermarking, set and check before returning sig
 
         if (wm) {
-          setWatermark(wmFile, tz, op)
-          if (canSign(wmFile, tz, op)) {
+          setWatermark(configDir, tz, op)
+          if (canSign(configDir, tz, op)) {
             return next(new Error(`Failed to set watermark for ${op}. Not returning signature.`))
           }
         }
@@ -63,7 +63,7 @@ const signMessage = function(keys, hsmClient, msgClient, vaultUri, wmFile, water
 
     // check high watermark if necessary
 
-    if (wm && !canSign(wmFile, tz, op)) {
+    if (wm && !canSign(configDir, tz, op)) {
       return next(new Error(`Watermark check failed for ${op}`))
     }
 
@@ -76,15 +76,15 @@ const signMessage = function(keys, hsmClient, msgClient, vaultUri, wmFile, water
     // Or request confirmation via client
 
     else {
-      msgClient.serverListen((resp) => {
-        if (resp === op) {
+      msgClient.serverListen(configDir, (resp, canSign) => {
+        if (resp === op && canSign === true) {
           sign()
         }
         else {
           return next(new Error(`Operation rejected by user ${op}`))
         }
       })
-      msgClient.serverSend(op)
+      msgClient.serverSend(configDir, op)
     }
 
   }

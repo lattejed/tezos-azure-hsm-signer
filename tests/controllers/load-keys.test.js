@@ -2,7 +2,7 @@
 const assert = require('assert')
 const {loadKeys} = require('../../controllers/load-keys')
 const {hsmKeys} = require('../data/all')
-const client = require('../client-mock')
+const client = require('../hsm-client-mock')
 
 describe('controllers/load-keys', () => {
 
