@@ -67,4 +67,4 @@ catch (error) {
   process.exit(1)
 }
 
-console.info(`Waiting for signing request. Ctrl-C to quit.`)
+console.info(`Waiting for signing request. Ctrl-C to quit.\n`)
