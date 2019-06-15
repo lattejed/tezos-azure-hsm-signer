@@ -46,7 +46,7 @@ stdin.on('keypress', (str, key) => {
 
 try {
   clientListen(APP.CONFIG_DIR, (op) => {
-    console.info(`Confirm transaction ${op} [Ny]?\n`)
+    console.info(`Confirm transaction ${op} [Ny]?`)
     const listener = function(str, key) {
       if (key.sequence === 'y') {
         clientSend(APP.CONFIG_DIR, op, true)
