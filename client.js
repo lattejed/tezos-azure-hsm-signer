@@ -39,6 +39,7 @@ if (stdin.isTTY) {
 stdin.on('keypress', (str, key) => {
   if (key.sequence === '\u0003') {
     console.info(`Ctrl-C received. Exiting...`)
+    clientListen(null)
     process.exit(0)
   }
 })

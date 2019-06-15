@@ -34,6 +34,8 @@ const MSG_STATUS = {
 }
 const POLL_INTVAL = 300
 
+let timers = []
+
 const getMessages = function(dir) {
   let file = path.join(dir, MSG_FILE)
   fs.ensureFileSync(file)
@@ -58,30 +60,45 @@ const deleteMessage = function(dir, op) {
   setMessages(dir, msgs)
 }
 
+const deleteAllMessages = function(dir) {
+  fs.removeSync(dir)
+}
+
 const poll = function(dir, statuses, callback) {
-  let pollTimer = setInterval(() => {
+  let timer = setInterval(() => {
     let msgs = getMessages(dir)
     for (let op in msgs) {
       if (statuses.indexOf(msgs[op]) > -1) {
-        clearInterval(pollTimer)
         callback(op, msgs[op])
         break
       }
     }
   }, POLL_INTVAL)
+  timers.push(timer)
 }
 
 const clientListen = function(dir, callback) {
-  poll(dir, [MSG_STATUS.WAITING], (op, status) => {
-    callback(op)
-  })
+  if (dir === null) {
+    teardown()
+  }
+  else {
+    deleteAllMessages(dir) // Flush queue
+    poll(dir, [MSG_STATUS.WAITING], (op, status) => {
+      callback(op)
+    })
+  }
 }
 
 const serverListen = function(dir, callback) {
-  poll(dir, [MSG_STATUS.ACCEPT, MSG_STATUS.REJECT], (op, status) => {
-    deleteMessage(dir, op)
-    callback(op, status === MSG_STATUS.ACCEPT)
-  })
+  if (dir === null) {
+    teardown()
+  }
+  else {
+    poll(dir, [MSG_STATUS.ACCEPT, MSG_STATUS.REJECT], (op, status) => {
+      deleteMessage(dir, op)
+      callback(op, status === MSG_STATUS.ACCEPT)
+    })
+  }
 }
 
 const serverSend = function(dir, op) {
@@ -95,6 +112,13 @@ const clientSend = function(dir, op, accept) {
   else {
     setMessage(dir, op, MSG_STATUS.REJECT)
   }
+}
+
+const teardown = function() {
+  timers.forEach((timer) => {
+    clearInterval(timer)
+  })
+  timers = []
 }
 
 module.exports = {

@@ -21,6 +21,7 @@ describe('models/msg-client', () => {
     it('Should send correct op to client', (done) => {
       fs.removeSync(TEST_DIR)
       clientListen(TEST_DIR, (op) => {
+        clientListen(null)
         assert(op === data.op.generic, 'Should return correct op')
         fs.removeSync(TEST_DIR)
         done()
@@ -35,6 +36,7 @@ describe('models/msg-client', () => {
     it('Should accept op', (done) => {
       fs.removeSync(TEST_DIR)
       serverListen(TEST_DIR, (op, status) => {
+        serverListen(null)
         assert(op === data.op.generic && status === true, 'Should return correct op, accept')
         fs.removeSync(TEST_DIR)
         done()
@@ -45,6 +47,7 @@ describe('models/msg-client', () => {
     it('Should reject op', (done) => {
       fs.removeSync(TEST_DIR)
       serverListen(TEST_DIR, (op, status) => {
+        serverListen(null)
         assert(op === data.op.generic && status === false, 'Should return correct op, reject')
         fs.removeSync(TEST_DIR)
         done()

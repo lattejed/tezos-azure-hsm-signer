@@ -77,11 +77,14 @@ const signMessage = function(keys, hsmClient, msgClient, vaultUri, configDir, wa
 
     else {
       msgClient.serverListen(configDir, (resp, canSign) => {
-        if (resp === op && canSign === true) {
-          sign()
-        }
-        else {
-          return next(new Error(`Operation rejected by user ${op}`))
+        if (resp === op) {
+          msgClient.serverListen(null)
+          if (canSign === true) {
+            sign()
+          }
+          else {
+            return next(new Error(`Operation rejected by user ${op}`))
+          }
         }
       })
       msgClient.serverSend(configDir, op)
