@@ -48,12 +48,14 @@ const argv = require('yargs')
   .alias('W', 'check-high-watermark')
   .alias('a', 'address')
   .alias('p', 'port')
-  .alias('t', 'send-sign-timing')
-  .boolean(['check-high-watermark'])
-  .default({M: '0x01,0x02', W: true, a: '127.0.0.1', p: 6732, t: false})
+  .alias('T', 'send-sign-timing')
+  .boolean(['check-high-watermark', 'send-sign-timing'])
+  .default({M: '0x01,0x02', W: true, a: '127.0.0.1', p: 6732, T: false})
   .help('h')
   .alias('h', 'help')
   .argv
+
+console.log(argv)
 
 const KEYVAULT_URI = process.env.AZURE_KEYVAULT_URI
 const ADDRESS = argv.address
