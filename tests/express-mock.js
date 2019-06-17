@@ -10,8 +10,7 @@ module.exports = {
 
   res: function(cb) {
     return {
-      json: function(obj) { cb(obj) },
-      send: function(html) { cb(html) }
+      json: function(obj) { cb(obj) }
     }
   },
 

@@ -68,8 +68,8 @@ describe('controllers/sign-message', () => {
       it('Should get sign timing', (done) => {
 
         let tz = tzKey.p256.pkh
-        signMessage(_keys, hsmClient, null, null, TEST_DIR, false, allMagic, true)(req(tz, op.block), res((time) => {
-          assert(typeof time === 'number', 'No time returned')
+        signMessage(_keys, hsmClient, null, null, TEST_DIR, false, allMagic, true)(req(tz, op.block), res((json) => {
+          assert(typeof json.time === 'number', 'No time returned')
           done()
         }), next(done))
       })

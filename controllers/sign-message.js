@@ -57,7 +57,7 @@ const signMessage = function(keys, hsmClient, msgClient, vaultUri, configDir, wa
           }
         }
         if (sendTime) {
-          res.send(Date.now() - startTime)
+          res.json({signature: sig, time: Date.now() - startTime})
         }
         else {
           res.json({signature: sig})
