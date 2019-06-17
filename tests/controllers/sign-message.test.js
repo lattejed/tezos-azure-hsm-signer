@@ -22,7 +22,7 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy block', (done) => {
 
         let tz = tzKey.p256.pkh
-        signMessage(_keys, hsmClient, null, null, TEST_DIR, true, allMagic)(req(tz, op.block), res((json) => {
+        signMessage(_keys, hsmClient, null, null, TEST_DIR, true, allMagic, false)(req(tz, op.block), res((json) => {
           assert(json.signature, 'No signature')
           fs.removeSync(TEST_DIR)
           done()
@@ -32,7 +32,7 @@ describe('controllers/sign-message', () => {
       it('Should sign a dummy endorsement', (done) => {
 
         let tz = tzKey.p256.pkh
-        signMessage(_keys, hsmClient, null, null, TEST_DIR, true, allMagic)(req(tz, op.endorsement), res((json) => {
+        signMessage(_keys, hsmClient, null, null, TEST_DIR, true, allMagic, false)(req(tz, op.endorsement), res((json) => {
           assert(json.signature, 'No signature')
           fs.removeSync(TEST_DIR)
           done()
@@ -44,7 +44,7 @@ describe('controllers/sign-message', () => {
         let msgClient = require('../msg-client-mock')(true)
 
         let tz = tzKey.p256.pkh
-        signMessage(_keys, hsmClient, msgClient, null, TEST_DIR, true, allMagic)(req(tz, op.generic), res((json) => {
+        signMessage(_keys, hsmClient, msgClient, null, TEST_DIR, true, allMagic, false)(req(tz, op.generic), res((json) => {
           assert(json.signature, 'No signature')
           fs.removeSync(TEST_DIR)
           done()
@@ -56,13 +56,22 @@ describe('controllers/sign-message', () => {
         let msgClient = require('../msg-client-mock')(false)
 
         let tz = tzKey.p256.pkh
-        signMessage(_keys, hsmClient, msgClient, null, TEST_DIR, true, allMagic)(req(tz, op.generic), res((json) => {
+        signMessage(_keys, hsmClient, msgClient, null, TEST_DIR, true, allMagic, false)(req(tz, op.generic), res((json) => {
           //
         }), (error) => {
           assert(/^Operation rejected by user/.test(error.message), 'Failed to throw error')
           fs.removeSync(TEST_DIR)
           done()
         })
+      })
+
+      it('Should get sign timing', (done) => {
+
+        let tz = tzKey.p256.pkh
+        signMessage(_keys, hsmClient, null, null, TEST_DIR, false, allMagic, true)(req(tz, op.block), res((time) => {
+          assert(typeof time === 'number', 'No time returned')
+          done()
+        }), next(done))
       })
 
     })

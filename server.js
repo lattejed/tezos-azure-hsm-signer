@@ -48,8 +48,9 @@ const argv = require('yargs')
   .alias('W', 'check-high-watermark')
   .alias('a', 'address')
   .alias('p', 'port')
+  .alias('t', 'send-sign-timing')
   .boolean(['check-high-watermark'])
-  .default({M: '0x01,0x02', W: true, a: '127.0.0.1', p: 6732})
+  .default({M: '0x01,0x02', W: true, a: '127.0.0.1', p: 6732, t: false})
   .help('h')
   .alias('h', 'help')
   .argv
@@ -59,6 +60,7 @@ const ADDRESS = argv.address
 const PORT = argv.port
 const CHECK_HIGH_WATERMARK = argv.checkHighWatermark
 const MAGIC_BYTES = argv.magicBytes.split(',')
+const SEND_SIGN_TIME = argv.sendSignTiming
 
 const app = express()
 const server = http.createServer(app)
@@ -73,7 +75,8 @@ app.get('/authorized_keys', getAuthorizedKeys())
 app.get('/keys/:tzKeyHash', getPubKey(cachedKeys))
 app.post('/keys/:tzKeyHash', signMessage(
   cachedKeys, hsmClient, msgClient,
-  KEYVAULT_URI, APP.CONFIG_DIR, CHECK_HIGH_WATERMARK, MAGIC_BYTES
+  KEYVAULT_URI, APP.CONFIG_DIR,
+  CHECK_HIGH_WATERMARK, MAGIC_BYTES, SEND_SIGN_TIME
 ))
 app.use(handleError())
 

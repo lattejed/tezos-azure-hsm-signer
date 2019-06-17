@@ -29,7 +29,7 @@ const {canSign, setWatermark} = require('../models/watermark')
 
 const TZ = require('../constants/tezos-constants')
 
-const signMessage = function(keys, hsmClient, msgClient, vaultUri, configDir, watermark, magicBytes) {
+const signMessage = function(keys, hsmClient, msgClient, vaultUri, configDir, watermark, magicBytes, sendTime) {
 
   return function(req, res, next) {
 
@@ -38,6 +38,7 @@ const signMessage = function(keys, hsmClient, msgClient, vaultUri, configDir, wa
     if (!key) {
       return next(new Error(`No public key found for ${tz}`))
     }
+    let startTime = Date.now()
     let op = req.body
     let wm = watermark && (operation.isBlock(op) || operation.isEndorsement(op))
     let signerFunc = hsmClient.signWithClient(vaultUri, key)
@@ -55,7 +56,12 @@ const signMessage = function(keys, hsmClient, msgClient, vaultUri, configDir, wa
             return next(new Error(`Failed to set watermark for ${op}. Not returning signature.`))
           }
         }
-        res.json({signature: sig})
+        if (sendTime) {
+          res.send(Date.now() - startTime)
+        }
+        else {
+          res.json({signature: sig})
+        }
       }).catch((error) => {
         next(error)
       })
